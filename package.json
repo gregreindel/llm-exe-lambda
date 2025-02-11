@@ -1,0 +1,42 @@
+{
+  "name": "llm-exe-lambda",
+  "version": "2.1.1",
+  "scripts": {
+    "test": "eval $(cat .env.test) jest --config jest.config.ts --maxWorkers 3 --coverage",
+    "build:watch": "(concurrently \"tsc -w\" \"tsc-alias -w\")",
+    "bootstrap": "eval $(cat .env) . scripts/deploy.sh -bootstrap",
+    "update-secrets": "eval $(cat .env) . scripts/deploy.sh -update-secrets",
+    "synth": "eval $(cat .env) . scripts/deploy.sh -synth",
+    "deploy": "eval $(cat .env) . scripts/deploy.sh -deploy",
+    "prettier": "prettier --write \"**/*.{ts,js,json,md}\""
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.108",
+    "@types/jest": "^27.5.2",
+    "@types/lodash.kebabcase": "^4.1.9",
+    "@types/lodash.snakecase": "^4.1.9",
+    "@types/node": "17.0.23",
+    "@types/prettier": "2.6.0",
+    "aws-cdk": "^2.151.0",
+    "aws-cdk-lib": "^2.151.0",
+    "concurrently": "^8.2.2",
+    "constructs": "^10.0.0",
+    "esbuild": "^0.15.13",
+    "jest": "^27.5.1",
+    "jest-junit": "^16.0.0",
+    "source-map-support": "^0.5.21",
+    "ts-jest": "^27.1.4",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.10",
+    "tsconfig-paths": "^3.14.1",
+    "typescript": "^4.8.4",
+    "prettier": "^3.5.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.629.0",
+    "llm-exe": "2.1.1",
+    "lodash.kebabcase": "^4.1.1",
+    "lodash.snakecase": "^4.1.1"
+  }
+}

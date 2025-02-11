@@ -1,0 +1,18 @@
+# Nodejs
+node_modules/
+build
+.env
+!.env.sample
+
+# AWS
+cdk.out
+
+# Logs
+*.log
+
+# Mac
+.DS_Store
+
+# Tests
+coverage/*
+test-results/*

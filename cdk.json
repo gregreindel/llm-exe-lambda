@@ -1,0 +1,11 @@
+{
+    "app": "npx ts-node --prefer-ts-exts stack/index.ts",
+    "plugin": [
+    ],
+    "context": {
+        "endpointEnabled": true,
+        "terminationProtection": false,
+        "allowedBedrockModels": ["*"],
+        "endpointAllowedOrigins": ["*"]
+    }
+  }

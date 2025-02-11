@@ -1,0 +1,88 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AssumeRole",
+            "Effect": "Allow",
+            "Action": [
+                "sts:AssumeRole"
+            ],
+            "Resource": [
+                "arn:aws:iam::*:role/cdk-*"
+            ]
+        },
+        {
+            "Sid": "CloudFormationActions",
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:ListStacks",
+                "cloudformation:CreateStack",
+                "cloudformation:UpdateStack",
+                "cloudformation:GetTemplate",
+                "cloudformation:DeleteChangeSet",
+                "cloudformation:DeleteStack",
+                "cloudformation:CreateChangeSet",
+                "cloudformation:DescribeChangeSet",
+                "cloudformation:ExecuteChangeSet",
+                "cloudformation:DescribeStacks",
+                "cloudformation:DescribeStackEvents",
+                "cloudformation:DescribeStackResources"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "EcrForAssets",
+            "Effect": "Allow",
+            "Action": [
+                "ecr:CreateRepository",
+                "ecr:DeleteRepository",
+                "ecr:PutLifecyclePolicy",
+                "ecr:SetRepositoryPolicy",
+                "ecr:DescribeRepositories"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Sid": "S3ActionsForAssets",
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::cdk-*",
+                "arn:aws:s3:::cdk-*/*"
+            ]
+        },
+        {
+            "Sid": "IAMPassRole",
+            "Effect": "Allow",
+            "Action": [
+                "iam:TagRole",
+                "iam:PassRole",
+                "iam:GetRole",
+                "iam:CreateRole",
+                "iam:getRolePolicy",
+                "iam:PutRolePolicy",
+                "iam:AttachRolePolicy",
+                "iam:DetachRolePolicy"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "SsmForSecrets",
+            "Effect": "Allow",
+            "Action": [
+                "ssm:PutParameter",
+                "ssm:GetParameter",
+                "ssm:GetParameters",
+                "ssm:DeleteParameter"
+            ],
+            "Resource": [
+                "arn:aws:ssm:YOUR_AWS_DEPLOY_REGION:YOUR_AWS_ACCOUNT_ID:parameter/LlmExeLambda/Secret/*",
+                "arn:aws:ssm:YOUR_AWS_DEPLOY_REGION:YOUR_AWS_ACCOUNT_ID:parameter/cdk-bootstrap/*"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,85 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "CloudFormationPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:CreateStack",
+                "cloudformation:UpdateStack",
+                "cloudformation:DeleteStack",
+                "cloudformation:DescribeStacks"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "APIGatewayPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "apigateway:GET",
+                "apigateway:POST",
+                "apigateway:PUT",
+                "apigateway:PATCH",
+                "apigateway:DELETE"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "LambdaPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "lambda:*"
+            ],
+            "Resource": "arn:aws:lambda:YOUR_AWS_DEPLOY_REGION:YOUR_AWS_ACCOUNT_ID:function:LlmExeLambda-*"
+        },
+        {
+            "Sid": "LambdaSsmExtentionPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "lambda:GetLayerVersion"
+            ],
+            "Resource": "arn:aws:lambda:YOUR_AWS_DEPLOY_REGION:345057560386:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+        },
+        {
+            "Sid": "SSMPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "ssm:*"
+            ],
+            "Resource": [
+                "arn:aws:ssm:YOUR_AWS_DEPLOY_REGION:YOUR_AWS_ACCOUNT_ID:parameter/LlmExeLambda/Secret/*",
+                "arn:aws:ssm:YOUR_AWS_DEPLOY_REGION:YOUR_AWS_ACCOUNT_ID:parameter/cdk-bootstrap/*"
+            ]
+        },
+        {
+            "Sid": "S3Permissions",
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::llm-exe-lambda-*",
+                "arn:aws:s3:::llm-exe-lambda-*/*",
+                "arn:aws:s3:::cdk-*"
+            ]
+        },
+        {
+            "Sid": "MinimalIAMPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "iam:PassRole",
+                "iam:GetRole",
+                "iam:ListRoles",
+                "iam:CreateRole",
+                "iam:TagRole",
+                "iam:DeleteRole",
+                "iam:GetRolePolicy",
+                "iam:PutRolePolicy",
+                "iam:DetachRolePolicy",
+                "iam:AttachRolePolicy",
+                "iam:DeleteRolePolicy"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
