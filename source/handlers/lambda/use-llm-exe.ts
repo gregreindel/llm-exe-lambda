@@ -14,40 +14,39 @@ export async function LlmExeHandler(
     const payload = getInputPayload(event);
     const input = await getLlmExeHandlerInput(payload);
 
-    if (isInputValid(input)) {
-      let response;
-      const { schema = {} } = input;
-
-      const providor = `${input.providor}.chat.v1`;
-
-      if (input.output === "json") {
-        response = await inputTextOutputJson(input.message, {
-          providor,
-          model: input.model,
-          data: input.data,
-          schema: schema,
-          debug: !!input?.data?.debug,
-        });
-      } else if (input.output === "list") {
-        response = await inputTextOutputStringList(input.message, {
-          providor,
-          model: input.model,
-          data: input.data,
-          debug: !!input?.data?.debug,
-        });
-      } else {
-        response = await inputTextOutputString(input.message, {
-          providor,
-          model: input.model,
-          data: input.data,
-          debug: !!input?.data?.debug,
-        });
-      }
-
-      return getOutputPayload(event, response);
+    if (!isInputValid(input)) {
+      throw new Error("Invalid input");
     }
 
-    throw new Error("Invalid input");
+    let response;
+    const { schema = {} } = input;
+    const providor = `${input.providor}.chat.v1`;
+
+    if (input.output === "json") {
+      response = await inputTextOutputJson(input.message, {
+        providor,
+        model: input.model,
+        data: input.data,
+        schema: schema,
+        debug: !!input?.data?.debug,
+      });
+    } else if (input.output === "list") {
+      response = await inputTextOutputStringList(input.message, {
+        providor,
+        model: input.model,
+        data: input.data,
+        debug: !!input?.data?.debug,
+      });
+    } else {
+      response = await inputTextOutputString(input.message, {
+        providor,
+        model: input.model,
+        data: input.data,
+        debug: !!input?.data?.debug,
+      });
+    }
+
+    return getOutputPayload(event, response);
   } catch (error) {
     return getOutputPayload(event, error);
   }

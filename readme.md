@@ -2,30 +2,44 @@
 
 ## Overview
 
-LLM‑EXE Lambda is a purpose‐built AWS CDK stack that acts as a wrapper around the llm‑exe package. It simplifies the integration and orchestration of LLM (Large Language Model) calls by deploying a Lambda function, an S3 bucket, and an API Gateway within your AWS environment. This deployment can be integrated into your workflows – such as AWS Step Functions – or used as a standalone service to trigger LLM requests with minimal overhead.
+llm-exe Lambda is a purpose‐built AWS CDK stack that acts as a wrapper around the llm-exe package. It simplifies the integration and orchestration of LLM calls by deploying a Lambda function within your AWS environment. This deployment can be integrated into your workflows – such as AWS Step Functions, API Gateway, SQS – or used as a standalone service to trigger LLM requests with minimal overhead.
 
 **Key Features:**
-• Seamless deployment of Lambda, API Gateway, and S3 resources using AWS CDK.
-• Direct integration with the llm‑exe package—enabling LLM calls in pure JavaScript/TypeScript with full type inference.
-• Supports both text-based LLM prompts (llama‑3) and chat-based interactions (gpt‑4o, claude‑3.5).
-• Provides comprehensive prompt templating with handlebars and enables LLMs to call functions or chain executors.
-• Minimal opinionated design: maintain full control over how you leverage the components.
+- Seamless deployment of Lambda, and associated resources using AWS CDK.
+- Utilizes best practices to store secrets in SSM
+- Direct integration with the llm-exe package—enabling LLM calls in pure JavaScript/TypeScript with full type inference.
+- Reference complex prompts from S3 bucket
 
-### Prerequisites
+**Take advantage of llm-exe core features such as:**
+- Supports both text-based LLM prompts (llama‑3) and chat-based interactions (gpt‑4o, claude‑3.5).
+- Provides comprehensive prompt templating with handlebars and enables LLMs to call functions or chain executors.
 
-To deploy and use LLM‑EXE Lambda, ensure you have the following installed and properly configured:
+### Getting Started
 
-• AWS CLI – must be installed and configured with appropriate permissions.
-• Node.js – any LTS version is recommended.
-• AWS Account – you will need your AWS account ID, region, and deployment profile details.
+To deploy and use llm-exe Lambda, ensure you have the following installed and properly configured:
 
-Theres two main steps to using this. First, you need to deploy into your account. Then you can use it.
+- AWS CLI – must be installed and configured with appropriate permissions.
+- Node.js – any LTS version is recommended.
+- AWS Account – you will need your AWS account ID, region, and deployment profile details.
 
-## AWS Account Setup
+**Setup + Deploy Steps**
+1. [AWS Account Setup](#aws-account-setup)
+    1. [Create CDK Permission Boundary Policy](#create-cdk-permission-boundary-policy)
+    2. [Create CDK Deploy Policy & User](#create-cdk-deploy-policy---user)
+    3. [Configure AWS CLI with the new permissions](#configure-aws-cli-with-the-new-permissions)
+    4. [Test CLI](#test-cli)
+2. [Deploy the stack into your AWS account](#deploy-the-stack-into-your-aws-account)
+    1. [Setup .env File](#setup-env-file)
+    2. [Bootstrap & Deploy Process](#deployment-process)
+3. [Using llm-exe Lambda](#using-llm-exe-lambda)
 
-You need to have a user or role configured to be able to deploy using the AWS CLI. If you have never done this before, follow this guide.
+## 1. AWS Account Setup
 
-## Create CDK Permission Boundary Policy
+You need to have a user or role configured to be able to deploy CDK stacks using the AWS CLI. If you already know what to do here, you can skip ahead.
+
+Note: There are other ways to configure AWS CLI. The instructions below are one of many reasonable options. [See the AWS CLI Docs](https://docs.aws.amazon.com/cli/v1/userguide/cli-chap-configure.html)
+
+### Create CDK Permission Boundary Policy
 1. Navigate to IAM. Select policies, and click to create a new policy.
 2. Paste in the contents from `documentation/setup/LlmExeLambdaCdkPermissionBoundaryPolicy.json` 
    - Replace `YOUR_AWS_DEPLOY_REGION` with your region. For example: `us-west-2`
@@ -33,7 +47,7 @@ You need to have a user or role configured to be able to deploy using the AWS CL
 3. Name the new policy: `LlmExeLambdaCdkPermissionBoundaryPolicy`.
 
 
-## Create CDK Deploy Policy & User
+### Create CDK Deploy Policy & User
 1. Navigate to IAM. Select policies, and click to create a new policy.
 2. Paste in the contents from `documentation/setup/DeployLlmExeCdkAppPolicy.json` 
    - Replace `YOUR_AWS_DEPLOY_REGION` with your region. For example: `us-west-2`
@@ -50,12 +64,15 @@ You need to have a user or role configured to be able to deploy using the AWS CL
     - Copy the Access key and Secret access key, you'll need them next.
 
 
-## Configure AWS CLI with the new permissions
+### Configure AWS CLI with the new permissions
 
 On your computer, run `aws configure --profile llm-exe-lambda`
 - it will ask for the access key you just created. `AWS Access Key ID [None]:`. Paste in your access key (startes with AKI). Hit enter.
 - it will ask for the access key you just created. `AWS Secret Access Key [None]: `. Paste in your secret access key (the other one). Hit enter.
 - it will ask for the default region. `Default region name [None]:` If you want to use a different region, use that, otherwise us-west-2.
+
+
+### Test The AWS CLI 
 
 Run the following command to make sure the CLI is configured properly.
 
@@ -71,12 +88,15 @@ You should see a response like:
 }
 ```
 
-### Initial Setup
+## 2. Deploy the stack into your AWS account
+
+
+### Setup .env File
 
 Begin by preparing your environment:
 
 1. Duplicate the sample environment file:
-   • Rename .env.sample to .env.
+   - Rename .env.sample to .env.
 2. Edit the .env file to include your deployment details and API keys. Example variables:
 
 | Variable          | Required | Description                                                                 |
@@ -95,20 +115,23 @@ Follow these steps to set up and deploy the CDK stack:
 1. **Bootstrap your AWS environment:** Execute the following command to initialize the environment with necessary CDK assets: `npm run bootstrap`
 
 2. **Deploy the stack:**
-   Deploy your CDK stack to AWS by running: `npm run deploy`
+Deploy your CDK stack to AWS by running: `npm run deploy`
 
-Once deployed, the generated Lambda can be directly invoked via API Gateway or incorporated into more complex workflows like AWS Step Functions.
+Once deployed, the generated Lambda can be directly invoked via API Gateway or incorporated into more complex workflows like AWS Step Functions, SQS, etc.
 
-### Using it
+## 3. Using llm-exe Lambda
 
-You can invoke you model using the payload or by referening a config in an s3 bucket.
+You can invoke you model using the config payload outlined below or by referencing a json-config hosted in an s3 bucket.
 
-Config - is using basic config,
+### Config-Based Input
+
+The typescript interface below defines the input for the function.
 
 ```typescript
+
 interface LlmExeHandlerInput {
   providor: "openai" | "anthropic" | "amazon:anthropic" | "amazon:meta";
-  model: string; // the model specific to the providor
+  model: string;
   output?: "string" | "json" | "list";
   message: string | { role: string; content: string }[] | string[];
   schema?: Record<string, any>;
@@ -116,7 +139,75 @@ interface LlmExeHandlerInput {
 }
 ```
 
-S3 Config - is using config hosted in s3
+If you read json-schema better, here is that payload expressed as json-schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "providor": {
+      "type": "string",
+      "enum": ["openai", "anthropic", "amazon:anthropic", "amazon:meta"],
+      "description": "the organization providing the model - must be one of valid enum."
+    },
+    "model": {
+      "type": "string",
+      "description": "the specific model you would like to use"
+    },
+    "output": {
+      "type": "string",
+      "enum": ["string", "json", "list"],
+      "default": "string",
+      "description": "the data object is used to pass data to the message"
+    },
+    "message": {
+      "description": "This is the prompt itsself",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": ["system", "user", "assistant"],
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": ["role", "content"]
+          }
+        }
+      ]
+    },
+    "schema": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "when using output of 'json' - schema is required to define the expected return value"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "the data object is used to pass data to the message"
+    }
+  },
+  "required": ["providor", "model", "message"]
+}
+
+```
+
+
+### S3 Hosted Input
+You can store config files in S3 as well if you prefer. This can help with complex schemas. I'll also support other formats soon.
 
 ```typescript
 interface LlmExeHandlerInput {
@@ -125,12 +216,55 @@ interface LlmExeHandlerInput {
   data?: Record<string, any>;
 }
 ```
+aka
+```json
+{
+  "type": "object",
+  "properties": {
+    "bucket": {
+      "type": "string",
+      "description": "this is the S3 bucket name"
+    },
+    "key": {
+      "type": "string",
+      "description": "this is the key for the file in S3"
+    },
+    "version": {
+      "type": "string",
+      "description": "if you would like to specify an object version"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "the data object is used to pass data to the message"
+    }
+  },
+  "required": ["key"]
+}
+```
 
 ### Usage Examples
 
 Below are several example payloads that illustrate how to use the deployed Lambda to make LLM calls. Each example covers a different provider and prompt configuration.
 
-Example 1: OpenAI Provider with a Simple Prompt
+You can copy and paste the examples into the Lambda test area, or invoke the lambda with the payload, or send a POST request to the function url with the examples as the body.
+
+#### Invoke using function url
+```bash
+curl --location 'YOUR_FUNCTION_URL/invoke' \
+--header 'Content-Type: application/json' \
+--data '{
+  "providor": "openai",
+  "model": "gpt-4o-mini",
+  "output": "string",
+  "message": "Talk like a kitten. Hello!"
+}'
+```
+Note: Replace YOUR_FUNCTION_URL with your actual function's url.
+
+
+#### Example Payloads
+
 
 ```json
 {
@@ -141,6 +275,28 @@ Example 1: OpenAI Provider with a Simple Prompt
 }
 ```
 
+
+
+```json
+{
+  "providor": "openai",
+  "model": "gpt-4o-mini",
+  "output": "string",
+
+  "key": "file-name.json",
+}
+```
+or
+
+```json
+{
+  "providor": "openai",
+  "model": "gpt-4o-mini",
+  "output": "string",
+
+  "url": "some-public-url-with-json-config",
+}
+```
 Example 2: Anthropic Provider with a Text Message Prompt
 
 ```json
@@ -206,9 +362,9 @@ Example 5: OpenAI Provider with a Dynamic Prompt Template and Schema
 }
 ```
 
-LLM‑EXE Lambda empowers you to integrate advanced LLM capabilities with your AWS infrastructure in a straightforward and flexible manner. With complete control over your prompt configurations and cloud resources, you can design powerful and scalable LLM-driven workflows.
+llm-exe Lambda empowers you to integrate advanced LLM capabilities with your AWS infrastructure in a straightforward and flexible manner. With complete control over your prompt configurations and cloud resources, you can design powerful and scalable LLM-driven workflows.
 
-For further technical details on the underlying llm‑exe package and advanced usage instructions, consult the official repository and API documentation.
+For further technical details on the underlying llm-exe package and advanced usage instructions, check out [llm-exe](https://llm-exe.com/).
 
 ---
 

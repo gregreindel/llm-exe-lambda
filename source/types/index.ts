@@ -1,8 +1,18 @@
-export interface LlmExeHandlerConfig {
+export interface LlmExeHandlerS3Config {
   key: string;
+  bucket: string;
   version?: string;
   data?: Record<string, any>;
 }
+
+export interface LlmExeHandlerPublicConfig {
+  url: string;
+  data?: Record<string, any>;
+}
+
+export type LlmExeHandlerConfig =
+  | LlmExeHandlerS3Config
+  | LlmExeHandlerPublicConfig;
 
 export interface LlmExeHandlerInput {
   providor: "openai" | "anthropic" | "amazon:anthropic" | "amazon:meta";

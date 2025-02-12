@@ -8,7 +8,7 @@ import { getS3ObjectAsJson } from "./getS3ObjectAsJson";
  */
 export async function getS3ObjectAsJsonWithLocal<
   T extends Record<string, any> = Record<string, any>
->(key: string, bucket = process.env.AWS_S3_TEMP_FILES_BUCKET_NAME) {
+>(key: string, bucket = process.env.AWS_S3_TEMP_FILES_BUCKET_NAME, version?: string) {
   if (process.env.NODE_ENV === "development") {
     const data = await fs.readFile(
       `${process.env.LOCAL_S3_MOCK_DIRECTORY || "~/Downloads"}/${key}`,
@@ -42,7 +42,7 @@ export async function getS3ObjectAsJsonWithLocal<
       await fs.mkdir(filePath, { recursive: true });
     }
 
-    const response = await getS3ObjectAsJson(key, bucket);
+    const response = await getS3ObjectAsJson(key, bucket, version);
 
     await fs.writeFile(`${filePath}/${fileName}`, JSON.stringify(response));
     return response as T;
