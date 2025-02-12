@@ -288,7 +288,7 @@ Note: Replace YOUR_FUNCTION_URL with your actual function's url.
 
 #### Example Payloads
 
-
+**Config-Based**
 ```json
 {
   "providor": "openai",
@@ -297,28 +297,21 @@ Note: Replace YOUR_FUNCTION_URL with your actual function's url.
   "message": "Talk like a kitten. Hello!"
 }
 ```
-
+**S3-Based**
 ```json
 {
-  "providor": "openai",
-  "model": "gpt-4o-mini",
-  "output": "string",
-
   "key": "file-name.json",
 }
 ```
 or
 
+**Public URL-Based**
 ```json
 {
-  "providor": "openai",
-  "model": "gpt-4o-mini",
-  "output": "string",
-
   "url": "some-public-url-with-json-config",
 }
 ```
-Example 2: Anthropic Provider with a Text Message Prompt
+Example 2: Anthropic Provider with a Text-based Message Prompt
 
 ```json
 {
