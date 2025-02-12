@@ -44,7 +44,7 @@ Note: There are other ways to configure AWS CLI. The instructions below are one 
 ### Create CDK Permission Boundary Policy
 A CDK permission boundary is a mechanism in AWS that allows you to set a custom permission boundary for IAM roles created or updated by the AWS Cloud Development Kit, ensuring roles do not exceed certain privileges. You will create a special policy that you use to deploy this stack. [See the AWS CDK Docs to learn more](https://docs.aws.amazon.com/cdk/v2/guide/customize-permissions-boundaries.html)
 
-1. Navigate to IAM. Select policies, and click to create a new policy.
+1. Navigate to IAM. Select Policies, and click to create a new policy.
 2. Paste in the contents from [`documentation/setup/LlmExeLambdaCdkPermissionBoundaryPolicy.json`](https://github.com/gregreindel/llm-exe-lambda/blob/main/documentation/setup/LlmExeLambdaCdkPermissionBoundaryPolicy.json) 
    - Replace `YOUR_AWS_DEPLOY_REGION` with your region. For example: `us-west-2`
    - Replace `YOUR_AWS_ACCOUNT_ID` with your AWS account ID. For example: 000000000000
@@ -54,13 +54,13 @@ A CDK permission boundary is a mechanism in AWS that allows you to set a custom 
 Next, you need to create the user (and associated policy) that is used to deploy the actual stack. After creating this user, you'll generate access keys that you'll use on your machine when deploying.
 
 1. Navigate to IAM. Select policies, and click to create a new policy.
-2. Paste in the contents from [`documentation/setup/DeployLlmExeCdkAppPolicy.json`](https://github.com/gregreindel/llm-exe-lambda/blob/main/documentation/setup/DeployLlmExeCdkAppPolicy.json)
+2. Paste in the contents from [`documentation/setup/DeployLlmExeCdkAppPolicy.json`](https://github.com/gregreindel/llm-exe-lambda/blob/main/documentation/setup/DeployLlmExeCdkAppPolicy.json) into the JSON policy input.
    - Replace `YOUR_AWS_DEPLOY_REGION` with your region. For example: `us-west-2`
    - Replace `YOUR_AWS_ACCOUNT_ID` with your AWS account ID. For example: 000000000000
 3. Name the new policy: `DeployLlmExeCdkAppPolicy`.
 4. Create a new User. 
   - Name the user `LlmExeLambdaCdkDeployUser`
-  - When asked to set permissions, select the `Attach policies directly` option, and then select the policy you just created. (can be helpful to sort the table by "Type", you'll notice the 'customer managed' policy.)
+  - When asked to set permissions, select the `Attach policies directly` option, and then select the `DeployLlmExeCdkAppPolicy` policy you just created. (can be helpful to sort the table by "Type", you'll notice the 'customer managed' policy.)
  - Add the new user
 5. Click on the newly created user and click on the securirty credentials tab 
     - Click create access key 
@@ -71,12 +71,14 @@ Next, you need to create the user (and associated policy) that is used to deploy
 
 ### Configure AWS CLI with the new permissions
 
-Foinally, configure the new user with the AWS SLi on your machine. On your computer, run `aws configure --profile llm-exe-lambda`.
+Finally, configure the new user with the AWS CLI on your machine. 
+
+On your computer, run `aws configure --profile llm-exe-lambda`.
 
 - It will ask for the access key you just created. `AWS Access Key ID [None]:`. Paste in your access key (starts with AKI). Hit enter.
 - It will ask for the access key you just created. `AWS Secret Access Key [None]: `. Paste in your secret access key (the other one). Hit enter.
 - It will ask for the default region. `Default region name [None]:` If you want to use a specific region, use that, otherwise set as us-west-2.
-
+- It will ask for `Default output format [None]` - hit enter to keep the value at "None".
 
 ### Test The AWS CLI 
 
@@ -95,7 +97,7 @@ You should see a response like:
 ```
 
 ## 2. Deploy the stack into your AWS account
-Once you have the user and policies created in your account, you can deploy the stack.
+Once you have the user and policies created in your account, and the AWS ALI configured, you can deploy the stack.
 
 ### Setup .env File
 
@@ -118,16 +120,32 @@ Begin by preparing your environment:
 
 Follow these steps to set up and deploy the CDK stack:
 
-1. **Bootstrap your AWS environment:** Execute the following command to initialize the environment with necessary CDK assets: `npm run bootstrap`
+1. **Bootstrap your AWS environment:** 
+Execute the following command to initialize the environment with necessary CDK assets: `npm run bootstrap`
+
+You should see the output ` ✅  Environment aws://YOUR_ACCOUNT_ID/YOUR_REGION bootstrapped.` 
 
 2. **Deploy the stack:**
 Deploy your CDK stack to AWS by running: `npm run deploy`
+- You will be asked to confirm the change before the resources are deployed into your account. Confirm with y.
+- The terminal will indicate once the deploy is completed. Once complete, the Lambda function and related resources will be available in your AWS account. You can visit CloudFormation to see the stack you deployed, and the associated resources.
 
-Once deployed, the generated Lambda can be directly invoked via API Gateway or incorporated into more complex workflows like AWS Step Functions, SQS, etc.
+If you enabled `endpointEnabled` in cdk.json, the output will include your function's execution url. See using llm-exe-lambda for information on how to invoke the function.
+
+``` 
+✅  LlmExeLambda
+
+✨  Deployment time: 68.74s
+
+Outputs:
+LlmExeLambda.LambdaUseLlmExeFunctionUrlUUID = https://some-random-url.lambda-url.us-west-2.on.aws/
+```
+
+Once deployed, the generated Lambda can be directly invoked via the function url or incorporated into more complex workflows like AWS Step Functions, SQS, etc.
 
 ## 3. Using llm-exe Lambda
 
-You can invoke you model using the config payload outlined below or by referencing a json-config hosted in an s3 bucket.
+You can invoke you model using the config payload outlined below or by referencing a json-config hosted in an s3 bucket. To quickly test it out, try one of the payloads below in the "Test" area of the lambda.
 
 ### Config-Based Input
 
@@ -211,7 +229,6 @@ If you read json-schema better, here is that payload expressed as json-schema
 
 ```
 
-
 ### S3 Hosted Input
 You can store config files in S3 as well if you prefer. This can help with complex schemas. I'll also support other formats soon.
 
@@ -280,8 +297,6 @@ Note: Replace YOUR_FUNCTION_URL with your actual function's url.
   "message": "Talk like a kitten. Hello!"
 }
 ```
-
-
 
 ```json
 {
