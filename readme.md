@@ -7,7 +7,7 @@ llm-exe Lambda is a purpose‐built AWS CDK stack that acts as a wrapper around 
 **Key Features:**
 - Seamless deployment of Lambda, and associated resources using AWS CDK.
 - Utilizes best practices to store secrets in SSM
-- Reference complex prompts from direct input S3 bucket 
+- Reference complex prompts from direct input, S3 bucket, or public url.
 
 **Take advantage of llm-exe core features such as:**
 - Supports both text-based LLM prompts (llama‑3) and chat-based interactions (gpt‑4o, claude‑3.5).
