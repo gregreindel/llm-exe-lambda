@@ -45,17 +45,16 @@ Note: There are other ways to configure AWS CLI. The instructions below are one 
 A CDK permission boundary is a mechanism in AWS that allows you to set a custom permission boundary for IAM roles created or updated by the AWS Cloud Development Kit, ensuring roles do not exceed certain privileges. You will create a special policy that you use to deploy this stack. [See the AWS CDK Docs to learn more](https://docs.aws.amazon.com/cdk/v2/guide/customize-permissions-boundaries.html)
 
 1. Navigate to IAM. Select policies, and click to create a new policy.
-2. Paste in the contents from `documentation/setup/LlmExeLambdaCdkPermissionBoundaryPolicy.json` 
+2. Paste in the contents from [`documentation/setup/LlmExeLambdaCdkPermissionBoundaryPolicy.json`](https://github.com/gregreindel/llm-exe-lambda/blob/main/documentation/setup/LlmExeLambdaCdkPermissionBoundaryPolicy.json) 
    - Replace `YOUR_AWS_DEPLOY_REGION` with your region. For example: `us-west-2`
    - Replace `YOUR_AWS_ACCOUNT_ID` with your AWS account ID. For example: 000000000000
 3. Name the new policy: `LlmExeLambdaCdkPermissionBoundaryPolicy`.
-
 
 ### Create CDK Deploy Policy & User
 Next, you need to create the user (and associated policy) that is used to deploy the actual stack. After creating this user, you'll generate access keys that you'll use on your machine when deploying.
 
 1. Navigate to IAM. Select policies, and click to create a new policy.
-2. Paste in the contents from `documentation/setup/DeployLlmExeCdkAppPolicy.json` 
+2. Paste in the contents from [`documentation/setup/DeployLlmExeCdkAppPolicy.json`](https://github.com/gregreindel/llm-exe-lambda/blob/main/documentation/setup/DeployLlmExeCdkAppPolicy.json)
    - Replace `YOUR_AWS_DEPLOY_REGION` with your region. For example: `us-west-2`
    - Replace `YOUR_AWS_ACCOUNT_ID` with your AWS account ID. For example: 000000000000
 3. Name the new policy: `DeployLlmExeCdkAppPolicy`.
@@ -96,7 +95,7 @@ You should see a response like:
 ```
 
 ## 2. Deploy the stack into your AWS account
-
+Once you have the user and policies created in your account, you can deploy the stack.
 
 ### Setup .env File
 
