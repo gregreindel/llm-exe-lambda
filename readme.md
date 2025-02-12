@@ -7,8 +7,7 @@ llm-exe Lambda is a purpose‐built AWS CDK stack that acts as a wrapper around 
 **Key Features:**
 - Seamless deployment of Lambda, and associated resources using AWS CDK.
 - Utilizes best practices to store secrets in SSM
-- Direct integration with the llm-exe package—enabling LLM calls in pure JavaScript/TypeScript with full type inference.
-- Reference complex prompts from S3 bucket
+- Reference complex prompts from direct input S3 bucket 
 
 **Take advantage of llm-exe core features such as:**
 - Supports both text-based LLM prompts (llama‑3) and chat-based interactions (gpt‑4o, claude‑3.5).
@@ -32,6 +31,9 @@ To deploy and use llm-exe Lambda, ensure you have the following installed and pr
     1. [Setup .env File](#setup-env-file)
     2. [Bootstrap & Deploy Process](#deployment-process)
 3. [Using llm-exe Lambda](#using-llm-exe-lambda)
+   - [Usage Examples](#usage-examples)
+   - [Updating SSM Secrets](#updating-ssm-secrets)
+   - [Help](#help)
 
 ## 1. AWS Account Setup
 
@@ -40,6 +42,8 @@ You need to have a user or role configured to be able to deploy CDK stacks using
 Note: There are other ways to configure AWS CLI. The instructions below are one of many reasonable options. [See the AWS CLI Docs](https://docs.aws.amazon.com/cli/v1/userguide/cli-chap-configure.html)
 
 ### Create CDK Permission Boundary Policy
+A CDK permission boundary is a mechanism in AWS that allows you to set a custom permission boundary for IAM roles created or updated by the AWS Cloud Development Kit, ensuring roles do not exceed certain privileges. You will create a special policy that you use to deploy this stack. [See the AWS CDK Docs to learn more](https://docs.aws.amazon.com/cdk/v2/guide/customize-permissions-boundaries.html)
+
 1. Navigate to IAM. Select policies, and click to create a new policy.
 2. Paste in the contents from `documentation/setup/LlmExeLambdaCdkPermissionBoundaryPolicy.json` 
    - Replace `YOUR_AWS_DEPLOY_REGION` with your region. For example: `us-west-2`
@@ -48,6 +52,8 @@ Note: There are other ways to configure AWS CLI. The instructions below are one 
 
 
 ### Create CDK Deploy Policy & User
+Next, you need to create the user (and associated policy) that is used to deploy the actual stack. After creating this user, you'll generate access keys that you'll use on your machine when deploying.
+
 1. Navigate to IAM. Select policies, and click to create a new policy.
 2. Paste in the contents from `documentation/setup/DeployLlmExeCdkAppPolicy.json` 
    - Replace `YOUR_AWS_DEPLOY_REGION` with your region. For example: `us-west-2`
@@ -66,10 +72,11 @@ Note: There are other ways to configure AWS CLI. The instructions below are one 
 
 ### Configure AWS CLI with the new permissions
 
-On your computer, run `aws configure --profile llm-exe-lambda`
-- it will ask for the access key you just created. `AWS Access Key ID [None]:`. Paste in your access key (startes with AKI). Hit enter.
-- it will ask for the access key you just created. `AWS Secret Access Key [None]: `. Paste in your secret access key (the other one). Hit enter.
-- it will ask for the default region. `Default region name [None]:` If you want to use a different region, use that, otherwise us-west-2.
+Foinally, configure the new user with the AWS SLi on your machine. On your computer, run `aws configure --profile llm-exe-lambda`.
+
+- It will ask for the access key you just created. `AWS Access Key ID [None]:`. Paste in your access key (starts with AKI). Hit enter.
+- It will ask for the access key you just created. `AWS Secret Access Key [None]: `. Paste in your secret access key (the other one). Hit enter.
+- It will ask for the default region. `Default region name [None]:` If you want to use a specific region, use that, otherwise set as us-west-2.
 
 
 ### Test The AWS CLI 
@@ -368,7 +375,12 @@ For further technical details on the underlying llm-exe package and advanced usa
 
 ---
 
-## Errors
+### Updating SSM Secrets
+The secrets for `OPEN_AI_API_KEY` and `ANTHROPIC_API_KEY` are synced to SSM when you bootstrap. If at any time you want to update the secret keys stored in SSM, you are able to by using the update-secrets command.
+1. Update the values in the .env file
+2. Run `npm run update-secrets`
+
+### Help
 
 **Message**: Need to perform AWS calls for account XXXXXXX, but no credentials have been configured
 **Solution**: You are not authenticated with AWS.
