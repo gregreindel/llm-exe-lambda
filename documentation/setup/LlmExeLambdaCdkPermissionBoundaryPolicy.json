@@ -38,7 +38,7 @@
             "Action": [
                 "lambda:GetLayerVersion"
             ],
-            "Resource": "arn:aws:lambda:YOUR_AWS_DEPLOY_REGION:345057560386:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+            "Resource": "arn:aws:lambda:us-west-2:345057560386:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
         },
         {
             "Sid": "SSMPermissions",
