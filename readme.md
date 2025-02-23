@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/gregreindel/llm-exe-lambda/badge.svg?branch=main)](https://coveralls.io/github/gregreindel/llm-exe-lambda?branch=main)
+
 # llm-exe Lambda: AWS CDK Integration
 
 ## Overview
@@ -5,11 +7,13 @@
 llm-exe Lambda is a purpose‐built AWS CDK stack that acts as a wrapper around the llm-exe package. It simplifies the integration and orchestration of LLM calls by deploying a Lambda function within your AWS environment. This deployment can be integrated into your workflows – such as AWS Step Functions, API Gateway, SQS – or used as a standalone service to trigger LLM requests with minimal overhead.
 
 **Key Features:**
+
 - Seamless deployment of Lambda, and associated resources using AWS CDK.
 - Utilizes best practices to store secrets in SSM
 - Reference complex prompts from direct input, S3 bucket, or public url.
 
 **Take advantage of llm-exe core features such as:**
+
 - Supports both text-based LLM prompts (llama‑3) and chat-based interactions (gpt‑4o, claude‑3.5).
 - Provides comprehensive prompt templating with handlebars and enables LLMs to call functions or chain executors.
 
@@ -22,15 +26,17 @@ To deploy and use llm-exe Lambda, ensure you have the following installed and pr
 - AWS Account – you will need your AWS account ID, region, and deployment profile details.
 
 **Setup + Deploy Steps**
+
 1. [AWS Account Setup](#aws-account-setup)
-    1. [Create CDK Permission Boundary Policy](#create-cdk-permission-boundary-policy)
-    2. [Create CDK Deploy Policy & User](#create-cdk-deploy-policy---user)
-    3. [Configure AWS CLI with the new permissions](#configure-aws-cli-with-the-new-permissions)
-    4. [Test CLI](#test-cli)
-2. [Deploy the stack into your AWS account](#deploy-the-stack-into-your-aws-account)
-    1. [Setup .env File](#setup-env-file)
-    2. [Bootstrap & Deploy Process](#deployment-process)
-3. [Using llm-exe Lambda](#using-llm-exe-lambda)
+   1. [Create CDK Permission Boundary Policy](#create-cdk-permission-boundary-policy)
+   2. [Create CDK Deploy Policy & User](#create-cdk-deploy-policy---user)
+   3. [Configure AWS CLI with the new permissions](#configure-aws-cli-with-the-new-permissions)
+   4. [Test CLI](#test-cli)
+2. Clone this repo
+3. [Deploy the stack into your AWS account](#deploy-the-stack-into-your-aws-account)
+   1. [Setup .env File](#setup-env-file)
+   2. [Bootstrap & Deploy Process](#deployment-process)
+4. [Using llm-exe Lambda](#using-llm-exe-lambda)
    - [Usage Examples](#usage-examples)
    - [Updating SSM Secrets](#updating-ssm-secrets)
    - [Help](#help)
@@ -42,62 +48,76 @@ You need to have a user or role configured to be able to deploy CDK stacks using
 Note: There are other ways to configure AWS CLI. The instructions below are one of many reasonable options. [See the AWS CLI Docs](https://docs.aws.amazon.com/cli/v1/userguide/cli-chap-configure.html)
 
 ### Create CDK Permission Boundary Policy
+
 A CDK permission boundary is a mechanism in AWS that allows you to set a custom permission boundary for IAM roles created or updated by the AWS Cloud Development Kit, ensuring roles do not exceed certain privileges. You will create a special policy that you use to deploy this stack. [See the AWS CDK Docs to learn more](https://docs.aws.amazon.com/cdk/v2/guide/customize-permissions-boundaries.html)
 
 1. Navigate to IAM. Select Policies, and click to create a new policy.
-2. Paste in the contents from [`documentation/setup/LlmExeLambdaCdkPermissionBoundaryPolicy.json`](https://github.com/gregreindel/llm-exe-lambda/blob/main/documentation/setup/LlmExeLambdaCdkPermissionBoundaryPolicy.json) 
+2. Paste in the contents from [`documentation/setup/LlmExeLambdaCdkPermissionBoundaryPolicy.json`](https://github.com/gregreindel/llm-exe-lambda/blob/main/documentation/setup/LlmExeLambdaCdkPermissionBoundaryPolicy.json)
    - Replace `YOUR_AWS_DEPLOY_REGION` with your region. For example: `us-west-2`
    - Replace `YOUR_AWS_ACCOUNT_ID` with your AWS account ID. For example: 000000000000
 3. Name the new policy: `LlmExeLambdaCdkPermissionBoundaryPolicy`.
+4. Click the Create Policy button to create the new policy.
 
 ### Create CDK Deploy Policy & User
+
 Next, you need to create the user (and associated policy) that is used to deploy the actual stack. After creating this user, you'll generate access keys that you'll use on your machine when deploying.
+
+##### Create Policy
 
 1. Navigate to IAM. Select policies, and click to create a new policy.
 2. Paste in the contents from [`documentation/setup/DeployLlmExeCdkAppPolicy.json`](https://github.com/gregreindel/llm-exe-lambda/blob/main/documentation/setup/DeployLlmExeCdkAppPolicy.json) into the JSON policy input.
    - Replace `YOUR_AWS_DEPLOY_REGION` with your region. For example: `us-west-2`
    - Replace `YOUR_AWS_ACCOUNT_ID` with your AWS account ID. For example: 000000000000
 3. Name the new policy: `DeployLlmExeCdkAppPolicy`.
-4. Create a new User. 
-  - Name the user `LlmExeLambdaCdkDeployUser`
-  - When asked to set permissions, select the `Attach policies directly` option, and then select the `DeployLlmExeCdkAppPolicy` policy you just created. (can be helpful to sort the table by "Type", you'll notice the 'customer managed' policy.)
- - Add the new user
-5. Click on the newly created user and click on the securirty credentials tab 
-    - Click create access key 
-    - Access key best practices & alternatives - select "Other"
-    - Provide a description, such as "Key used to deploy CDK"
-    - Copy the Access key and Secret access key, you'll need them next.
+4. Click the Create Policy button to create the new policy.
 
+##### Create User
+
+1. Create a new User.
+   - Name the user `LlmExeLambdaCdkDeployUser`
+   - Do not check the box allowing the user console access. It is not needed.
+   - When asked to set permissions, select the `Attach policies directly` option, and then select the `DeployLlmExeCdkAppPolicy` policy you just created. (can be helpful to sort the table by "Type", you'll notice the 'customer managed' policy.)
+   - Click create user to add the new user
+2. Click on the newly created user and click on the security credentials tab
+   - Click create access key
+   - Access key best practices & alternatives - select "Other"
+   - Provide a description, such as "Key used to deploy CDK"
+   - Copy the Access key and Secret access key, you'll need them next.
 
 ### Configure AWS CLI with the new permissions
 
-Finally, configure the new user with the AWS CLI on your machine. 
+Finally, configure the new user with the AWS CLI on your machine.
 
-On your computer, run `aws configure --profile llm-exe-lambda`.
+On your computer, run the following command to configure the AWS CLI with the new credentials:
+
+```bash
+aws configure --profile llm-exe-lambda
+```
 
 - It will ask for the access key you just created. `AWS Access Key ID [None]:`. Paste in your access key (starts with AKI). Hit enter.
 - It will ask for the access key you just created. `AWS Secret Access Key [None]: `. Paste in your secret access key (the other one). Hit enter.
 - It will ask for the default region. `Default region name [None]:` If you want to use a specific region, use that, otherwise set as us-west-2.
 - It will ask for `Default output format [None]` - hit enter to keep the value at "None".
 
-### Test The AWS CLI 
+### Test The AWS CLI
 
-Run the following command to make sure the CLI is configured properly.
+Run the following command to make sure the CLI is configured properly:
 
-`aws sts get-caller-identity --profile llm-exe-lambda`
+```bash
+aws sts get-caller-identity --profile llm-exe-lambda
+```
 
 You should see a response like:
 
 ```json
 {
-    "UserId": "YOUR_ACCESS_KEY_ID",
-    "Account": "YOUR_ACCOUNT_ID",
-    "Arn": "arn:aws:iam::YOUR_ACCOUNT_ID:user/LlmExeLambdaCdkDeployUser"
+  "UserId": "YOUR_ACCESS_KEY_ID",
+  "Account": "YOUR_ACCOUNT_ID",
+  "Arn": "arn:aws:iam::YOUR_ACCOUNT_ID:user/LlmExeLambdaCdkDeployUser"
 }
 ```
 
-## 2. Deploy the stack into your AWS account
-Once you have the user and policies created in your account, and the AWS ALI configured, you can deploy the stack.
+## 2. Clone Repo and Setup
 
 ### Setup .env File
 
@@ -112,27 +132,45 @@ Begin by preparing your environment:
 | NODE_ENV          | required | Set your runtime environment.                                               |
 | DEPLOY_ACCOUNT    | required | Your AWS Account ID.                                                        |
 | DEPLOY_REGION     | required | The target AWS region for resource deployment (must be a valid AWS region). |
-| DEPLOY_PROFILE    | required | The AWS CLI profile to use for deployment.                                  |
+| DEPLOY_PROFILE    | required | The AWS CLI profile to use for deployment. (llm-exe-lambda)                 |
 | OPEN_AI_API_KEY   | optional | Your OpenAI API key.                                                        |
 | ANTHROPIC_API_KEY | optional | Your Anthropic API key.                                                     |
+
+## 3. Deploy the stack into your AWS account
+
+Once you have the user and policies created in your account, and the AWS ALI configured, you can deploy the stack.
+|
 
 ### Deployment Process
 
 Follow these steps to set up and deploy the CDK stack:
 
-1. **Bootstrap your AWS environment:** 
-Execute the following command to initialize the environment with necessary CDK assets: `npm run bootstrap`
+##### 1. **Bootstrap your AWS environment:**
 
-You should see the output ` ✅  Environment aws://YOUR_ACCOUNT_ID/YOUR_REGION bootstrapped.` 
+Execute the following command to initialize the environment with necessary CDK assets:
 
-2. **Deploy the stack:**
-Deploy your CDK stack to AWS by running: `npm run deploy`
-- You will be asked to confirm the change before the resources are deployed into your account. Confirm with y.
-- The terminal will indicate once the deploy is completed. Once complete, the Lambda function and related resources will be available in your AWS account. You can visit CloudFormation to see the stack you deployed, and the associated resources.
+```bash
+npm run bootstrap
+```
+You should see the output ` ✅  Environment aws://YOUR_ACCOUNT_ID/YOUR_REGION bootstrapped.`. 
+
+Note: You should only need to run bootstrap once. If in the future you want to update the stack, you do not need to rnu bootstrap again.
+
+##### 2. **Deploy the stack:**
+
+Deploy your CDK stack to AWS by running:
+
+```bash
+npm run deploy
+```
+
+You will be asked to confirm the change before the resources are deployed into your account. Confirm with y. 
+
+The terminal will indicate once the deploy is completed. Once complete, the Lambda function and related resources will be available in your AWS account. You can visit CloudFormation to see the stack you deployed, and the associated resources.
 
 If you enabled `endpointEnabled` in cdk.json, the output will include your function's execution url. See using llm-exe-lambda for information on how to invoke the function.
 
-``` 
+```
 ✅  LlmExeLambda
 
 ✨  Deployment time: 68.74s
@@ -143,7 +181,7 @@ LlmExeLambda.LambdaUseLlmExeFunctionUrlUUID = https://some-random-url.lambda-url
 
 Once deployed, the generated Lambda can be directly invoked via the function url or incorporated into more complex workflows like AWS Step Functions, SQS, etc.
 
-## 3. Using llm-exe Lambda
+## 4. Using llm-exe Lambda
 
 You can invoke you model using the config payload outlined below or by referencing a json-config hosted in an s3 bucket. To quickly test it out, try one of the payloads below in the "Test" area of the lambda.
 
@@ -152,9 +190,8 @@ You can invoke you model using the config payload outlined below or by referenci
 The typescript interface below defines the input for the function.
 
 ```typescript
-
 interface LlmExeHandlerInput {
-  providor: "openai" | "anthropic" | "amazon:anthropic" | "amazon:meta";
+  provider: "openai" | "anthropic" | "amazon:anthropic" | "amazon:meta";
   model: string;
   output?: "string" | "json" | "list";
   message: string | { role: string; content: string }[] | string[];
@@ -164,11 +201,12 @@ interface LlmExeHandlerInput {
 ```
 
 If you read json-schema better, here is that payload expressed as json-schema
+
 ```json
 {
   "type": "object",
   "properties": {
-    "providor": {
+    "provider": {
       "type": "string",
       "enum": ["openai", "anthropic", "amazon:anthropic", "amazon:meta"],
       "description": "the organization providing the model - must be one of valid enum."
@@ -202,7 +240,7 @@ If you read json-schema better, here is that payload expressed as json-schema
             "properties": {
               "role": {
                 "type": "string",
-                "enum": ["system", "user", "assistant"],
+                "enum": ["system", "user", "assistant"]
               },
               "content": {
                 "type": "string"
@@ -224,12 +262,12 @@ If you read json-schema better, here is that payload expressed as json-schema
       "description": "the data object is used to pass data to the message"
     }
   },
-  "required": ["providor", "model", "message"]
+  "required": ["provider", "model", "message"]
 }
-
 ```
 
 ### S3 Hosted Input
+
 You can store config files in S3 as well if you prefer. This can help with complex schemas. I'll also support other formats soon.
 
 ```typescript
@@ -239,7 +277,9 @@ interface LlmExeHandlerInput {
   data?: Record<string, any>;
 }
 ```
+
 aka
+
 ```json
 {
   "type": "object",
@@ -273,49 +313,56 @@ Below are several example payloads that illustrate how to use the deployed Lambd
 You can copy and paste the examples into the Lambda test area, or invoke the lambda with the payload, or send a POST request to the function url with the examples as the body.
 
 #### Invoke using function url
+
 ```bash
 curl --location 'YOUR_FUNCTION_URL/invoke' \
 --header 'Content-Type: application/json' \
 --data '{
-  "providor": "openai",
+  "provider": "openai",
   "model": "gpt-4o-mini",
   "output": "string",
   "message": "Talk like a kitten. Hello!"
 }'
 ```
-Note: Replace YOUR_FUNCTION_URL with your actual function's url.
 
+Note: Replace YOUR_FUNCTION_URL with your actual function's url.
 
 #### Example Payloads
 
 **Config-Based**
+
 ```json
 {
-  "providor": "openai",
+  "provider": "openai",
   "model": "gpt-4o-mini",
   "output": "string",
   "message": "Talk like a kitten. Hello!"
 }
 ```
+
 **S3-Based**
+
 ```json
 {
-  "key": "file-name.json",
+  "key": "file-name.json"
 }
 ```
+
 or
 
 **Public URL-Based**
+
 ```json
 {
-  "url": "some-public-url-with-json-config",
+  "url": "some-public-url-with-json-config"
 }
 ```
+
 Example 2: Anthropic Provider with a Text-based Message Prompt
 
 ```json
 {
-  "providor": "amazon:anthropic",
+  "provider": "amazon:anthropic",
   "model": "anthropic.claude-3-5-sonnet-20241022-v2:0",
   "output": "string",
   "message": "Talk like a kitten. Hello!"
@@ -326,7 +373,7 @@ Example 3: Anthropic Provider using a Structured Chat Message
 
 ```json
 {
-  "providor": "anthropic",
+  "provider": "anthropic",
   "model": "claude-3-5-sonnet-20240620",
   "output": "string",
   "message": [
@@ -343,7 +390,7 @@ Example 5: OpenAI Provider with a Dynamic Prompt Template and Schema
 ```json
 {
   "output": "json",
-  "providor": "openai",
+  "provider": "openai",
   "model": "gpt-4o-mini",
   "message": [
     "You are performing research for an article. Search Google to learn more about the topic. The topic is: {{ topic }}"
@@ -383,7 +430,9 @@ For further technical details on the underlying llm-exe package and advanced usa
 ---
 
 ### Updating SSM Secrets
+
 The secrets for `OPEN_AI_API_KEY` and `ANTHROPIC_API_KEY` are synced to SSM when you bootstrap. If at any time you want to update the secret keys stored in SSM, you are able to by using the update-secrets command.
+
 1. Update the values in the .env file
 2. Run `npm run update-secrets`
 
