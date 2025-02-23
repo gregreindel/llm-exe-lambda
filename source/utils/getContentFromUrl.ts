@@ -1,4 +1,4 @@
-export async function getContentFromUrlAsJson<T extends Record<string, any> = any>(url: string): Promise<T> {
+export async function getContentFromUrl(url: string): Promise<string> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
@@ -7,7 +7,7 @@ export async function getContentFromUrlAsJson<T extends Record<string, any> = an
   try {
     const response = await fetch(url, { signal: controller.signal });
     const data = await response.text();
-    return JSON.parse(data) as T;
+    return data.trim();
   } catch (error) {
     throw new Error(`Failed to fetch data from ${url}`);
   } finally {
