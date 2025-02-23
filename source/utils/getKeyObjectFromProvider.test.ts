@@ -1,11 +1,11 @@
 import { withKey } from "@/clients/keychain";
-import { getKeyObjectFromProvidor } from "./getKeyObjectFromProvidor";
+import { getKeyObjectFromProvider } from "./getKeyObjectFromProvider";
 
 jest.mock("@/clients/keychain", () => ({
   withKey: jest.fn(),
 }));
 
-describe("getKeyObjectFromProvidor", () => {
+describe("getKeyObjectFromProvider", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -14,7 +14,7 @@ describe("getKeyObjectFromProvidor", () => {
     const mockApiKey = "mockOpenAiApiKey";
     (withKey as jest.Mock).mockResolvedValue(mockApiKey);
 
-    const result = await getKeyObjectFromProvidor("openai.chat.v1");
+    const result = await getKeyObjectFromProvider("openai.chat.v1");
 
     expect(withKey).toHaveBeenCalledWith("KeyOpenAI");
     expect(result).toEqual({ openAiApiKey: mockApiKey });
@@ -23,7 +23,7 @@ describe("getKeyObjectFromProvidor", () => {
   it("should throw an error if OpenAI key is not found", async () => {
     (withKey as jest.Mock).mockResolvedValue(null);
 
-    await expect(getKeyObjectFromProvidor("openai.chat.v1")).rejects.toThrow("OpenAI API Key not found");
+    await expect(getKeyObjectFromProvider("openai.chat.v1")).rejects.toThrow("OpenAI API Key not found");
     expect(withKey).toHaveBeenCalledWith("KeyOpenAI");
   });
 
@@ -31,7 +31,7 @@ describe("getKeyObjectFromProvidor", () => {
     const mockApiKey = "mockAnthropicApiKey";
     (withKey as jest.Mock).mockResolvedValue(mockApiKey);
 
-    const result = await getKeyObjectFromProvidor("anthropic.model.v1" as any);
+    const result = await getKeyObjectFromProvider("anthropic.model.v1" as any);
 
     expect(withKey).toHaveBeenCalledWith("KeyAnthropic");
     expect(result).toEqual({ anthropicApiKey: mockApiKey });
@@ -40,12 +40,12 @@ describe("getKeyObjectFromProvidor", () => {
   it("should throw an error if Anthropic key is not found", async () => {
     (withKey as jest.Mock).mockResolvedValue(null);
 
-    await expect(getKeyObjectFromProvidor("anthropic.model.v1" as any)).rejects.toThrow("Anthropic API Key not found");
+    await expect(getKeyObjectFromProvider("anthropic.model.v1" as any)).rejects.toThrow("Anthropic API Key not found");
     expect(withKey).toHaveBeenCalledWith("KeyAnthropic");
   });
 
   it("should return an empty object if provider does not require a key", async () => {
-    const result = await getKeyObjectFromProvidor("unknown.provider" as any);
+    const result = await getKeyObjectFromProvider("unknown.provider" as any);
 
     expect(withKey).not.toHaveBeenCalled();
     expect(result).toEqual({});

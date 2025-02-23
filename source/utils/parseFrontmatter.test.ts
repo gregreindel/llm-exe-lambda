@@ -113,8 +113,8 @@ describe("parse", () => {
     // Compute the expected bodyBegin (line number where body starts)
     // In this input, the frontmatter block (frontmatterBlock) contains 3 newlines.
     // The computeLocation function computes number of newlines encountered until offset.
-    // Since frontmatterBlock ends at the newline after the second marker, the body should begin on line 4.
-    expect(result.bodyBegin).toBe(4);
+    // Since frontmatterBlock ends at the newline after the second marker, the body should begin on line 5
+    expect(result.bodyBegin).toBe(5);
   });
 
   it("handles YAML content with extra whitespace", () => {

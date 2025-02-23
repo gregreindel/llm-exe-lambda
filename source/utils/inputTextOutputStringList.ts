@@ -5,7 +5,7 @@ import { inputTextPrompt } from "./inputTextPrompt";
 export async function inputTextOutputStringList(
   messages: string | any[],
   options: {
-    providor: string;
+    provider: string;
     model: string;
     data?: Record<string, any>;
     debug?: boolean;
@@ -13,7 +13,7 @@ export async function inputTextOutputStringList(
 ) {
   const config: any = {
     timeout: 30000,
-    providor: options.providor,
+    provider: options.provider,
     model: options.model,
   };
 

@@ -20,11 +20,11 @@ export async function LlmExeHandler(
 
     let response;
     const { schema = {} } = input;
-    const providor = `${input.providor}.chat.v1`;
+    const provider = `${input.provider}.chat.v1`;
 
     if (input.output === "json") {
       response = await inputTextOutputJson(input.message, {
-        providor,
+        provider,
         model: input.model,
         data: input.data,
         schema: schema,
@@ -32,14 +32,14 @@ export async function LlmExeHandler(
       });
     } else if (input.output === "list") {
       response = await inputTextOutputStringList(input.message, {
-        providor,
+        provider,
         model: input.model,
         data: input.data,
         debug: !!input?.data?.debug,
       });
     } else {
       response = await inputTextOutputString(input.message, {
-        providor,
+        provider,
         model: input.model,
         data: input.data,
         debug: !!input?.data?.debug,

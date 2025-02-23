@@ -17,12 +17,12 @@ export function isInputValid(event: any): event is LlmExeHandlerInput {
   }
 
   if (
-    !event.providor ||
+    !event.provider ||
     !["openai", "anthropic", "amazon:anthropic", "amazon:meta"].includes(
-      event.providor
+      event.provider
     )
   ) {
-    throw new Error("Invalid providor type");
+    throw new Error("Invalid provider type");
   }
 
   if (!event.output) {

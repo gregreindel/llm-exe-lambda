@@ -9,7 +9,7 @@ describe("isInputValid", () => {
   const validEvent = {
     message: mockMessage,
     model: "gpt-3.5-turbo",
-    providor: "openai",
+    provider: "openai",
     output: "text",
   };
   
@@ -41,11 +41,11 @@ describe("isInputValid", () => {
     expect(() => isInputValid(event)).toThrow("Invalid model");
   });
 
-  it("should throw an error if providor is missing or invalid", () => {
-    const invalidProvidors = ["", "invalid", "google"];
-    invalidProvidors.forEach((providor) => {
-      const event = { ...validEvent, providor };
-      expect(() => isInputValid(event)).toThrow("Invalid providor type");
+  it("should throw an error if provider is missing or invalid", () => {
+    const invalidProviders = ["", "invalid", "google"];
+    invalidProviders.forEach((provider) => {
+      const event = { ...validEvent, provider };
+      expect(() => isInputValid(event)).toThrow("Invalid provider type");
     });
   });
 

@@ -8,7 +8,7 @@ export async function inputTextOutputJson<T extends Record<string, any>>(
   options: {
     schema: T;
     model: string;
-    providor: string;
+    provider: string;
     data?: Record<string, any>;
     debug?: boolean
   }
@@ -16,7 +16,7 @@ export async function inputTextOutputJson<T extends Record<string, any>>(
   const config: any = {
     useJson: true,
     timeout: 30000,
-    providor: options.providor,
+    provider: options.provider,
     model: options.model,
   };
 

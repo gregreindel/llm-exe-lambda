@@ -1,12 +1,12 @@
-import { getKeyObjectFromProvidor } from "@/utils/getKeyObjectFromProvidor";
+import { getKeyObjectFromProvider } from "@/utils/getKeyObjectFromProvider";
 import { useLlm } from "llm-exe";
 
 export async function withLlmExeClient(options: Record<string, any>) {
-  const { providor, ...restOfOptions } = options;
-  const apiKey = await getKeyObjectFromProvidor(options.providor);
+  const { provider, ...restOfOptions } = options;
+  const apiKey = await getKeyObjectFromProvider(options.provider);
 
   const llm = useLlm(
-    providor,
+    provider,
     Object.assign({ timeout: 60000 }, restOfOptions, apiKey)
   );
 

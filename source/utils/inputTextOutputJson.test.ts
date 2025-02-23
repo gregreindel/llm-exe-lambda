@@ -27,7 +27,7 @@ describe("inputTextOutputJson", () => {
   const mockMessages = "mockMessage";
   const mockOptions = {
     schema: { key: "value" },
-    providor: "mockProvider",
+    provider: "mockProvider",
     model: "mockModel",
     data: { additionalKey: "additionalValue" },
     debug: true,
@@ -47,7 +47,7 @@ describe("inputTextOutputJson", () => {
     expect(withLlmExeClient).toHaveBeenCalledWith({
       useJson: true,
       timeout: 30000,
-      providor: mockOptions.providor,
+      provider: mockOptions.provider,
       model: mockOptions.model,
     });
   });

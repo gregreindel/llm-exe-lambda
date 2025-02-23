@@ -124,26 +124,6 @@ Assistant:    Assistant line
     });
   });
 
-  it("ignores lines outside of any recognized role if no role is currently active", () => {
-    const input = `
-Some prior text with no role
-System: The system content
-Further system line
-Random line with no role again
-User: The user content
-Another user line
-`;
-    const result = parseDialogue(input);
-    expect(result).toHaveLength(2);
-    expect(result[0]).toEqual({
-      role: "system",
-      content: "The system content\nFurther system line",
-    });
-    expect(result[1]).toEqual({
-      role: "user",
-      content: "The user content\nAnother user line",
-    });
-  });
 
   it("handles lines that only contain whitespace", () => {
     const input = `

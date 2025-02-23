@@ -21,7 +21,7 @@ describe("LlmExeHandler", () => {
   const mockHandlerInput = {
     message: "testMessage",
     output: "string",
-    providor: "openai",
+    provider: "openai",
     model: "testModel",
     data: {}
   };
@@ -58,7 +58,7 @@ describe("LlmExeHandler", () => {
     await LlmExeHandler(mockEvent);
 
     expect(inputTextOutputJsonMock).toHaveBeenCalledWith("testMessage", {
-      providor: "openai.chat.v1",
+      provider: "openai.chat.v1",
       model: "testModel",
       data: {},
       schema: {},
@@ -77,7 +77,7 @@ describe("LlmExeHandler", () => {
     await LlmExeHandler(mockEvent);
 
     expect(inputTextOutputStringListMock).toHaveBeenCalledWith("testMessage", {
-      providor: "openai.chat.v1",
+      provider: "openai.chat.v1",
       model: "testModel",
       data: {},
       debug: false,

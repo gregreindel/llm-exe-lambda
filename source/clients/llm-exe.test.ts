@@ -1,9 +1,9 @@
-import { getKeyObjectFromProvidor } from "@/utils/getKeyObjectFromProvidor";
+import { getKeyObjectFromProvider } from "@/utils/getKeyObjectFromProvider";
 import { useLlm } from "llm-exe";
 import { withLlmExeClient } from "./llm-exe";
 
-jest.mock("@/utils/getKeyObjectFromProvidor", () => ({
-  getKeyObjectFromProvidor: jest.fn(),
+jest.mock("@/utils/getKeyObjectFromProvider", () => ({
+  getKeyObjectFromProvider: jest.fn(),
 }));
 
 jest.mock("llm-exe", () => ({
@@ -15,21 +15,21 @@ describe("withLlmExeClient", () => {
     jest.clearAllMocks();
   });
 
-  it("should call getKeyObjectFromProvidor with the correct provider", async () => {
-    const mockOptions = { providor: "testProvider", model: "testModel" };
+  it("should call getKeyObjectFromProvider with the correct provider", async () => {
+    const mockOptions = { provider: "testProvider", model: "testModel" };
     
-    (getKeyObjectFromProvidor as jest.Mock).mockResolvedValue({ apiKey: "testApiKey" });
+    (getKeyObjectFromProvider as jest.Mock).mockResolvedValue({ apiKey: "testApiKey" });
 
     await withLlmExeClient(mockOptions);
 
-    expect(getKeyObjectFromProvidor).toHaveBeenCalledWith(mockOptions.providor);
+    expect(getKeyObjectFromProvider).toHaveBeenCalledWith(mockOptions.provider);
   });
 
   it("should call useLlm with the correct parameters", async () => {
-    const mockOptions = { providor: "testProvider", model: "testModel" };
+    const mockOptions = { provider: "testProvider", model: "testModel" };
     const mockApiKey = { apiKey: "testApiKey" };
     
-    (getKeyObjectFromProvidor as jest.Mock).mockResolvedValue(mockApiKey);
+    (getKeyObjectFromProvider as jest.Mock).mockResolvedValue(mockApiKey);
 
     await withLlmExeClient(mockOptions);
 
@@ -45,9 +45,9 @@ describe("withLlmExeClient", () => {
 
   it("should return the LLM client", async () => {
     const mockLlmClient = {};
-    const mockOptions = { providor: "testProvider", model: "testModel" };
+    const mockOptions = { provider: "testProvider", model: "testModel" };
 
-    (getKeyObjectFromProvidor as jest.Mock).mockResolvedValue({ apiKey: "testApiKey" });
+    (getKeyObjectFromProvider as jest.Mock).mockResolvedValue({ apiKey: "testApiKey" });
     (useLlm as jest.Mock).mockReturnValue(mockLlmClient);
 
     const result = await withLlmExeClient(mockOptions);
@@ -56,9 +56,9 @@ describe("withLlmExeClient", () => {
   });
 
   it("should handle missing apiKey gracefully", async () => {
-    const mockOptions = { providor: "testProvider", model: "testModel" };
+    const mockOptions = { provider: "testProvider", model: "testModel" };
 
-    (getKeyObjectFromProvidor as jest.Mock).mockResolvedValue(null);
+    (getKeyObjectFromProvider as jest.Mock).mockResolvedValue(null);
 
     await expect(withLlmExeClient(mockOptions)).resolves.toEqual({});
   });

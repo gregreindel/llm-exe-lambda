@@ -96,7 +96,7 @@ export function parseDialogue(input: string): DialogueEntry[] {
 
       currentEntry = {
         role,
-        content: content,
+        content: content.trim(),
       };
     } else if (currentEntry) {
       // Continue adding lines to the current entry

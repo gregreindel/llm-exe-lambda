@@ -26,7 +26,7 @@ describe("inputTextOutputStringList", () => {
 
   const mockMessages = "mockMessage";
   const mockOptions = {
-    providor: "mockProvider",
+    provider: "mockProvider",
     model: "mockModel",
     data: { key: "value" },
     debug: true,
@@ -45,7 +45,7 @@ describe("inputTextOutputStringList", () => {
     await inputTextOutputStringList(mockMessages, mockOptions);
     expect(withLlmExeClient).toHaveBeenCalledWith({
       timeout: 30000,
-      providor: mockOptions.providor,
+      provider: mockOptions.provider,
       model: mockOptions.model,
     });
   });

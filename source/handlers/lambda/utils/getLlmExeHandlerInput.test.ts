@@ -1,60 +1,94 @@
-import { getS3ObjectAsJsonWithLocal } from "@/utils/getS3ObjectAsJsonWithLocal";
 import { getLlmExeHandlerInput } from "./getLlmExeHandlerInput";
+import { getContentFromUrl } from "@/utils/getContentFromUrl";
+import { getS3ObjectAsJsonWithLocal } from "@/utils/getS3ObjectAsJsonWithLocal";
+import { parseDialogue } from "@/utils/parseDialogue";
+import { parseFrontmatter } from "@/utils/parseFrontmatter";
 
-jest.mock("@/utils/getS3ObjectAsJsonWithLocal");
+jest.mock("@/utils/getContentFromUrl", () => ({
+  getContentFromUrl: jest.fn(),
+}));
+
+jest.mock("@/utils/getS3ObjectAsJsonWithLocal", () => ({
+  getS3ObjectAsJsonWithLocal: jest.fn(),
+}));
+
+jest.mock("@/utils/parseDialogue", () => ({
+  parseDialogue: jest.fn(),
+}));
+
+jest.mock("@/utils/parseFrontmatter", () => ({
+  parseFrontmatter: jest.fn(),
+}));
 
 describe("getLlmExeHandlerInput", () => {
-  const getS3ObjectAsJsonWithLocalMock = getS3ObjectAsJsonWithLocal as jest.MockedFunction<
-    typeof getS3ObjectAsJsonWithLocal
-  >;
-  
+  const defaults = { output: "string" };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("returns defaults merged with S3 data when the 'key' is present in event", async () => {
-    const mockEvent = { key: "testKey", version: "1.0" };
-    const mockS3Data = { output: "json", data: "testData" };
+  it("returns merged object from S3 when event has key and bucket", async () => {
+    const event = { key: "someKey", bucket: "someBucket", version: "v1" };
+    const loaded = { a: 1, extra: "data" };
+    (getS3ObjectAsJsonWithLocal as jest.Mock).mockResolvedValueOnce(loaded);
 
-    getS3ObjectAsJsonWithLocalMock.mockResolvedValueOnce(mockS3Data);
-
-    const result = await getLlmExeHandlerInput(mockEvent);
-
-    expect(getS3ObjectAsJsonWithLocalMock).toHaveBeenCalledWith(
-      "testKey.1.0.json"
-    );
-    expect(result).toEqual({ output: "json", data: "testData" });
+    const result = await getLlmExeHandlerInput(event);
+    expect(getS3ObjectAsJsonWithLocal).toHaveBeenCalledWith("someKey", "someBucket", "v1");
+    expect(result).toEqual({ ...defaults, ...loaded });
   });
 
-  it("returns defaults with S3 data using 'latest' when version is not present", async () => {
-    const mockEvent = { key: "testKey" };
-    const mockS3Data = { output: "json", data: "testData" };
+  it("parses JSON content when event has url and loaded content starts with '{'", async () => {
+    const event = { url: "http://example.com/data" };
+    const jsonContent = '{"b":2,"info":"jsonData"}';
+    (getContentFromUrl as jest.Mock).mockResolvedValueOnce(jsonContent);
 
-    getS3ObjectAsJsonWithLocalMock.mockResolvedValueOnce(mockS3Data);
-
-    const result = await getLlmExeHandlerInput(mockEvent);
-
-    expect(getS3ObjectAsJsonWithLocalMock).toHaveBeenCalledWith(
-      "testKey.latest.json"
-    );
-    expect(result).toEqual({ output: "json", data: "testData" });
+    const result = await getLlmExeHandlerInput(event);
+    expect(getContentFromUrl).toHaveBeenCalledWith("http://example.com/data");
+    expect(result).toEqual({ ...defaults, b: 2, info: "jsonData" });
   });
 
-  it("returns defaults merged with event data when 'key' is not present", async () => {
-    const mockEvent = { data: "testData" };
+  it("processes frontmatter and assigns body when event has url and loaded content does not start with '{' and dialogue is empty", async () => {
+    const event = { url: "http://example.com/text" };
+    const loadedContent = "plain text content";
+    (getContentFromUrl as jest.Mock).mockResolvedValueOnce(loadedContent);
+    // Mock parseFrontmatter to return a body and some attributes (which are ignored due to empty pick keys)
+    (parseFrontmatter as jest.Mock).mockReturnValueOnce({
+      body: loadedContent,
+      attributes: { unused: "value" },
+    });
+    // Mock parseDialogue to return an empty array
+    (parseDialogue as jest.Mock).mockReturnValueOnce([]);
 
-    const result = await getLlmExeHandlerInput(mockEvent);
-
-    expect(result).toEqual({ output: "string", data: "testData" });
-    expect(getS3ObjectAsJsonWithLocalMock).not.toHaveBeenCalled();
+    const result = await getLlmExeHandlerInput(event);
+    expect(getContentFromUrl).toHaveBeenCalledWith("http://example.com/text");
+    expect(parseFrontmatter).toHaveBeenCalledWith(loadedContent);
+    expect(parseDialogue).toHaveBeenCalledWith(loadedContent);
+    expect(result).toEqual({ ...defaults, message: loadedContent });
   });
 
-  it("returns only defaults when event is empty and 'key' is not present", async () => {
-    const mockEvent = {};
+  it("processes frontmatter and assigns dialogue when event has url and loaded content does not start with '{' and dialogue exists", async () => {
+    const event = { url: "http://example.com/text" };
+    const loadedContent = "dialogue text content";
+    (getContentFromUrl as jest.Mock).mockResolvedValueOnce(loadedContent);
+    // Mock parseFrontmatter to return a body and some attributes (attributes will be ignored)
+    (parseFrontmatter as jest.Mock).mockReturnValueOnce({
+      body: loadedContent,
+      attributes: { ignored: "value" },
+    });
+    // Mock parseDialogue to return a non-empty array
+    const dialogueResult = ["line1", "line2"];
+    (parseDialogue as jest.Mock).mockReturnValueOnce(dialogueResult);
 
-    const result = await getLlmExeHandlerInput(mockEvent);
+    const result = await getLlmExeHandlerInput(event);
+    expect(getContentFromUrl).toHaveBeenCalledWith("http://example.com/text");
+    expect(parseFrontmatter).toHaveBeenCalledWith(loadedContent);
+    expect(parseDialogue).toHaveBeenCalledWith(loadedContent);
+    expect(result).toEqual({ ...defaults, message: dialogueResult });
+  });
 
-    expect(result).toEqual({ output: "string" });
-    expect(getS3ObjectAsJsonWithLocalMock).not.toHaveBeenCalled();
+  it("merges event with defaults when event does not contain S3 keys or url", async () => {
+    const event = { someKey: "someValue", another: 123 };
+    const result = await getLlmExeHandlerInput(event);
+    expect(result).toEqual({ ...defaults, ...event });
   });
 });
