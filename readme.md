@@ -135,6 +135,7 @@ Begin by preparing your environment:
 | DEPLOY_PROFILE    | required | The AWS CLI profile to use for deployment. (llm-exe-lambda)                 |
 | OPEN_AI_API_KEY   | optional | Your OpenAI API key.                                                        |
 | ANTHROPIC_API_KEY | optional | Your Anthropic API key.                                                     |
+| XAI_API_KEY       | optional | Your xAI API key.                                                           |
 
 ## 3. Deploy the stack into your AWS account
 
@@ -152,7 +153,8 @@ Execute the following command to initialize the environment with necessary CDK a
 ```bash
 npm run bootstrap
 ```
-You should see the output ` ✅  Environment aws://YOUR_ACCOUNT_ID/YOUR_REGION bootstrapped.`. 
+
+You should see the output ` ✅  Environment aws://YOUR_ACCOUNT_ID/YOUR_REGION bootstrapped.`.
 
 Note: You should only need to run bootstrap once. If in the future you want to update the stack, you do not need to rnu bootstrap again.
 
@@ -164,7 +166,7 @@ Deploy your CDK stack to AWS by running:
 npm run deploy
 ```
 
-You will be asked to confirm the change before the resources are deployed into your account. Confirm with y. 
+You will be asked to confirm the change before the resources are deployed into your account. Confirm with y.
 
 The terminal will indicate once the deploy is completed. Once complete, the Lambda function and related resources will be available in your AWS account. You can visit CloudFormation to see the stack you deployed, and the associated resources.
 
@@ -431,7 +433,7 @@ For further technical details on the underlying llm-exe package and advanced usa
 
 ### Updating SSM Secrets
 
-The secrets for `OPEN_AI_API_KEY` and `ANTHROPIC_API_KEY` are synced from your .env file to SSM when you bootstrap. If at any time you want to update the secret keys stored in SSM, you are able to by using the update-secrets command.
+The secrets for `OPEN_AI_API_KEY` and `ANTHROPIC_API_KEY` and `XAI_API_KEY` are synced from your .env file to SSM when you bootstrap. If at any time you want to update the secret keys stored in SSM, you are able to by using the update-secrets command.
 
 To update the secrets in SSM:
 

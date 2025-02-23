@@ -13,7 +13,6 @@ import {
   ParamsAndSecretsVersions,
 } from "aws-cdk-lib/aws-lambda";
 
-const snakeCase = require('lodash.snakecase');
 const { version } = require("../../../package.json");
 
 export class LambdaUseLlmExe extends Construct {
@@ -27,7 +26,7 @@ export class LambdaUseLlmExe extends Construct {
     const account = Stack.of(this).account;
 
     this.handler = new NodejsFunction(this, "LlmExeHandler", {
-      functionName: `${AppName}-LlmExeHandler-v_${snakeCase(version)}`,
+      functionName: `${AppName}-LlmExeHandler`,
       description: `[Lambda] Use llm-exe helper (v${version})`,
       entry: path.join(
         __dirname,

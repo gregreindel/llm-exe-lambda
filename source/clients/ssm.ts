@@ -14,6 +14,7 @@ export async function lambdaGetParameter(name: string): Promise<string> {
     const map: any = {
       KeyOpenAI: process.env.OPEN_AI_API_KEY,
       KeyAnthropic: process.env.ANTHROPIC_API_KEY,
+      KeyXAI: process.env.ANTHROPIC_API_KEY,
     };
     return map[key] || "";
   }

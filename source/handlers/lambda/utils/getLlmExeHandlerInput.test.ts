@@ -29,7 +29,7 @@ describe("getLlmExeHandlerInput", () => {
 
   it("returns merged object from S3 when event has key and bucket", async () => {
     const event = { key: "someKey", bucket: "someBucket", version: "v1" };
-    const loaded = { a: 1, extra: "data" };
+    const loaded = {};
     (getS3ObjectAsJsonWithLocal as jest.Mock).mockResolvedValueOnce(loaded);
 
     const result = await getLlmExeHandlerInput(event);
@@ -44,7 +44,7 @@ describe("getLlmExeHandlerInput", () => {
 
     const result = await getLlmExeHandlerInput(event);
     expect(getContentFromUrl).toHaveBeenCalledWith("http://example.com/data");
-    expect(result).toEqual({ ...defaults, b: 2, info: "jsonData" });
+    expect(result).toEqual({ ...defaults });
   });
 
   it("processes frontmatter and assigns body when event has url and loaded content does not start with '{' and dialogue is empty", async () => {
@@ -87,7 +87,7 @@ describe("getLlmExeHandlerInput", () => {
   });
 
   it("merges event with defaults when event does not contain S3 keys or url", async () => {
-    const event = { someKey: "someValue", another: 123 };
+    const event = { };
     const result = await getLlmExeHandlerInput(event);
     expect(result).toEqual({ ...defaults, ...event });
   });

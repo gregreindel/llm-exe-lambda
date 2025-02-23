@@ -71,6 +71,17 @@ if [ $IS_UPDATE_SSM = "yes" ]; then
         --type "SecureString" \
         --overwrite)
     fi
+
+    # check is XAI_API_KEY is set, then create ssm secret
+    if [ -n "$XAI_API_KEY" ]; then
+        CREATE_SSM_SECRET_XAI=$(aws ssm put-parameter \
+        --name "/$StackName/Secret/KeyXAI" \
+        --value "$XAI_API_KEY" \
+        --profile "$DEPLOY_PROFILE" \
+        --type "SecureString" \
+        --overwrite)
+    fi
+    
 fi
 
 if [ $IS_BOOTSTRAP = "yes" ]; then
