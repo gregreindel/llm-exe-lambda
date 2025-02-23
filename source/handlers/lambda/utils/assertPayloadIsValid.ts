@@ -18,7 +18,7 @@ export function isInputValid(event: any): event is LlmExeHandlerInput {
 
   if (
     !event.provider ||
-    !["openai", "anthropic", "amazon:anthropic", "amazon:meta"].includes(
+    !["openai", "anthropic", "amazon:anthropic", "amazon:meta", "xai"].includes(
       event.provider
     )
   ) {
