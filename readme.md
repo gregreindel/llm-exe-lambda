@@ -4,7 +4,7 @@
 
 ## Overview
 
-llm-exe Lambda is a purpose‐built AWS CDK stack that acts as a wrapper around the llm-exe package. It simplifies the integration and orchestration of LLM calls by deploying a Lambda function within your AWS environment. This deployment can be integrated into your workflows – such as AWS Step Functions, API Gateway, SQS – or used as a standalone service to trigger LLM requests with minimal overhead.
+llm-exe Lambda is a purpose‐built AWS CDK stack that acts as a wrapper around the [llm-exe](https://llm-exe.com/) package. It simplifies the integration and orchestration of LLM calls by deploying a Lambda function within your AWS environment. This deployment can be integrated into your workflows – such as AWS Step Functions, API Gateway, SQS – or used as a standalone service to trigger LLM requests with minimal overhead.
 
 **Key Features:**
 
@@ -27,16 +27,16 @@ To deploy and use llm-exe Lambda, ensure you have the following installed and pr
 
 **Setup + Deploy Steps**
 
-1. [AWS Account Setup](#aws-account-setup)
+1. [AWS Account Setup](#1-aws-account-setup)
    1. [Create CDK Permission Boundary Policy](#create-cdk-permission-boundary-policy)
    2. [Create CDK Deploy Policy & User](#create-cdk-deploy-policy---user)
    3. [Configure AWS CLI with the new permissions](#configure-aws-cli-with-the-new-permissions)
    4. [Test CLI](#test-cli)
-2. Clone this repo
-3. [Deploy the stack into your AWS account](#deploy-the-stack-into-your-aws-account)
+2. [Clone this repo](#2-clone-repo-and-setup)
+3. [Deploy the stack into your AWS account](#3-deploy-the-stack-into-your-aws-account)
    1. [Setup .env File](#setup-env-file)
    2. [Bootstrap & Deploy Process](#deployment-process)
-4. [Using llm-exe Lambda](#using-llm-exe-lambda)
+4. [Using llm-exe Lambda](#4-using-llm-exe-lambda)
    - [Usage Examples](#usage-examples)
    - [Updating SSM Secrets](#updating-ssm-secrets)
    - [Help](#help)
