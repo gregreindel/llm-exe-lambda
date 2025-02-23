@@ -4,6 +4,7 @@ import { getS3ObjectAsJsonWithLocal } from "@/utils/getS3ObjectAsJsonWithLocal";
 import { parseDialogue } from "@/utils/parseDialogue";
 import { parseFrontmatter } from "@/utils/parseFrontmatter";
 import pick = require("lodash.pick");
+import { getInputAllowedProperties } from "./getInputAllowedProperties";
 
 export async function getLlmExeHandlerInput(
   event: Record<string, any>
@@ -13,26 +14,36 @@ export async function getLlmExeHandlerInput(
   };
 
   if ("key" in event && "bucket" in event) {
-    const { key, bucket, version } = event;
+    const { key, bucket, version, ...restOfPayload } = event;
     const loaded = await getS3ObjectAsJsonWithLocal<LlmExeHandlerInput>(
       key,
       bucket,
       version
     );
-    return Object.assign({}, defaults, loaded);
+
+    // options can be overwritten defaults -> payload -> json
+    return getInputAllowedProperties(Object.assign({}, defaults, restOfPayload, loaded));
   } else if ("url" in event) {
-    const { url } = event;
+    const { url, ...restOfPayload } = event;
     // get from url
     const loaded = await getContentFromUrl(url);
     // check if json or string
     if (loaded.startsWith("{")) {
       // if json, parse and return it
-      return Object.assign({}, defaults, JSON.parse(loaded));
+      return getInputAllowedProperties(
+        Object.assign({}, defaults, JSON.parse(loaded))
+      );
     }
 
     // if string, try to parse it with frontmatter and prompt-style
     const { body = "", attributes = {} } = parseFrontmatter(loaded);
-    const parsed: Record<string, any> = pick(attributes, []);
+    const parsed: Record<string, any> = pick(attributes, [
+      "provider",
+      "model",
+      "output",
+      "schema",
+      "data",
+    ]);
     const parsedDialogue = parseDialogue(body);
 
     if (parsedDialogue.length === 0) {
@@ -41,8 +52,9 @@ export async function getLlmExeHandlerInput(
       parsed.message = parsedDialogue;
     }
 
-    return Object.assign({}, defaults, parsed);
+    // options can be overwritten defaults -> payload -> frontmatter
+    return getInputAllowedProperties(Object.assign({}, defaults, restOfPayload, parsed));
   } else {
-    return Object.assign({}, defaults, event);
+    return getInputAllowedProperties(Object.assign({}, defaults, event));
   }
 }

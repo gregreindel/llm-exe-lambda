@@ -1,6 +1,6 @@
 {
   "name": "llm-exe-lambda",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "scripts": {
     "test": "eval $(cat .env.test) jest --config jest.config.ts --maxWorkers 3 --coverage",
     "build:watch": "(concurrently \"tsc -w\" \"tsc-alias -w\")",
@@ -37,7 +37,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "3.629.0",
     "js-yaml": "^4.1.0",
-    "llm-exe": "2.1.1",
+    "llm-exe": "2.1.2",
     "lodash.kebabcase": "^4.1.1",
     "lodash.pick": "^4.1.1",
     "lodash.snakecase": "^4.1.1"

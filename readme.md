@@ -431,7 +431,9 @@ For further technical details on the underlying llm-exe package and advanced usa
 
 ### Updating SSM Secrets
 
-The secrets for `OPEN_AI_API_KEY` and `ANTHROPIC_API_KEY` are synced to SSM when you bootstrap. If at any time you want to update the secret keys stored in SSM, you are able to by using the update-secrets command.
+The secrets for `OPEN_AI_API_KEY` and `ANTHROPIC_API_KEY` are synced from your .env file to SSM when you bootstrap. If at any time you want to update the secret keys stored in SSM, you are able to by using the update-secrets command.
+
+To update the secrets in SSM:
 
 1. Update the values in the .env file
 2. Run `npm run update-secrets`

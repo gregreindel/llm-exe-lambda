@@ -32,6 +32,25 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# check for .env and error if not there
+if [ ! -f .env ]; then
+    echo "Error: .env file not found.\n\nYou need to clone the .env.sample file and fill in the required values.\n\nCheck the docs for more information.\n\nhttps://github.com/gregreindel/llm-exe-lambda/actions?tab=readme-ov-file#2-clone-repo-and-setup"
+    exit 1
+fi
+
+# check if `DEPLOY_REGION` env variable is set, error if not 
+if [ -z "$DEPLOY_REGION" ]; then
+    echo "Error: DEPLOY_REGION not set in .env file."
+    exit 1
+fi
+
+# check if `DEPLOY_PROFILE` env variable is set, error if not 
+if [ -z "$DEPLOY_PROFILE" ]; then
+    echo "Error: DEPLOY_PROFILE not set in .env file."
+    exit 1
+fi
+
+
 if [ $IS_UPDATE_SSM = "yes" ]; then
     # check is OPEN_AI_API_KEY is set, then create ssm secret
     if [ -n "$OPEN_AI_API_KEY" ]; then
