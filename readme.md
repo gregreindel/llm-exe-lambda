@@ -185,24 +185,26 @@ Once deployed, the generated Lambda can be directly invoked via the function url
 
 ## 4. Using llm-exe Lambda
 
-You can invoke you model using the config payload outlined below or by referencing a json-config hosted in an s3 bucket. To quickly test it out, try one of the payloads below in the "Test" area of the lambda.
+You can invoke you model using the config payload outlined below or by referencing a config hosted in an S3 bucket or via a public url.
 
-### Config-Based Input
+### Configuration Options
 
-The typescript interface below defines the input for the function.
+| Variable | Required | Description                                                                                                  |
+| -------- | -------- | ------------------------------------------------------------------------------------------------------------ |
+| provider | required | One of the available providers - openai , anthropic , amazon:anthropic , amazon:meta , xai                   |
+| model    | required | A valid model                                                                                                |
+| output   | optional | string, json, list                                                                                           |
+| schema   | optional | When using output of 'json' - schema is required to define the expected return value                         |
+| data     | optional | the data object is used to pass data to the message. These properties are available to you inside the prompt |
+| message  | required | This is the prompt                                                                                           |
 
-```typescript
-interface LlmExeHandlerInput {
-  provider: "openai" | "anthropic" | "amazon:anthropic" | "amazon:meta";
-  model: string;
-  output?: "string" | "json" | "list";
-  message: string | { role: string; content: string }[] | string[];
-  schema?: Record<string, any>;
-  data?: Record<string, any>;
-}
-```
+- Direct Input
+- Hosted Input JSON (via S3 or url)
+- Hosted Markdown (via S3 or url)
 
-If you read json-schema better, here is that payload expressed as json-schema
+### Direct Input
+
+Your llm-exe-configuration JSON must validate against the following schema:
 
 ```json
 {
@@ -210,7 +212,7 @@ If you read json-schema better, here is that payload expressed as json-schema
   "properties": {
     "provider": {
       "type": "string",
-      "enum": ["openai", "anthropic", "amazon:anthropic", "amazon:meta"],
+      "enum": ["openai", "anthropic", "amazon:anthropic", "amazon:meta", "xai"],
       "description": "the organization providing the model - must be one of valid enum."
     },
     "model": {
@@ -224,7 +226,7 @@ If you read json-schema better, here is that payload expressed as json-schema
       "description": "the data object is used to pass data to the message"
     },
     "message": {
-      "description": "This is the prompt itsself",
+      "description": "This is the prompt",
       "oneOf": [
         {
           "type": "string"
@@ -268,35 +270,21 @@ If you read json-schema better, here is that payload expressed as json-schema
 }
 ```
 
-### S3 Hosted Input
 
-You can store config files in S3 as well if you prefer. This can help with complex schemas. I'll also support other formats soon.
+### URL Input
 
-```typescript
-interface LlmExeHandlerInput {
-  key: string;
-  version?: string;
-  data?: Record<string, any>;
-}
-```
+You can store config files in S3, or via any url. This can help with complex schemas. The hosted configuration files can be JSON or markdown.
 
-aka
+When you deploy the llm-exe-lambda stack, an S3 bucket with the right permissions allowing you to securely and privately store your prompts in that bucket. You can store the configs in any bucket as long as you give the lambda permission to access it.
+
 
 ```json
 {
   "type": "object",
   "properties": {
-    "bucket": {
+    "url": {
       "type": "string",
-      "description": "this is the S3 bucket name"
-    },
-    "key": {
-      "type": "string",
-      "description": "this is the key for the file in S3"
-    },
-    "version": {
-      "type": "string",
-      "description": "if you would like to specify an object version"
+      "description": "this is the url to the raw file"
     },
     "data": {
       "type": "object",
@@ -307,6 +295,8 @@ aka
   "required": ["key"]
 }
 ```
+
+
 
 ### Usage Examples
 
@@ -331,7 +321,7 @@ Note: Replace YOUR_FUNCTION_URL with your actual function's url.
 
 #### Example Payloads
 
-**Config-Based**
+##### Config-Based
 
 ```json
 {
@@ -346,7 +336,7 @@ Note: Replace YOUR_FUNCTION_URL with your actual function's url.
 
 ```json
 {
-  "key": "file-name.json"
+  "url": "s3://bucket-name/key-of-file.json"
 }
 ```
 
@@ -356,22 +346,11 @@ or
 
 ```json
 {
-  "url": "some-public-url-with-json-config"
+  "url": "https://raw.githubusercontent.com/gregreindel/llm-exe-lambda/refs/heads/main/documentation/examples/url/basic-chat-with-data.md"
 }
 ```
 
-Example 2: Anthropic Provider with a Text-based Message Prompt
-
-```json
-{
-  "provider": "amazon:anthropic",
-  "model": "anthropic.claude-3-5-sonnet-20241022-v2:0",
-  "output": "string",
-  "message": "Talk like a kitten. Hello!"
-}
-```
-
-Example 3: Anthropic Provider using a Structured Chat Message
+Example 2: Anthropic Provider using a Structured Chat Message
 
 ```json
 {
