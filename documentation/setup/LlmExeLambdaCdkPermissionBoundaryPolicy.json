@@ -58,8 +58,8 @@
                 "s3:*"
             ],
             "Resource": [
-                "arn:aws:s3:::llm-exe-lambda-*",
-                "arn:aws:s3:::llm-exe-lambda-*/*",
+                "arn:aws:s3:::llmexelambda-*",
+                "arn:aws:s3:::llmexelambda-*/*",
                 "arn:aws:s3:::cdk-*"
             ]
         },

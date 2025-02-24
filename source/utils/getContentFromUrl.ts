@@ -1,3 +1,6 @@
+import { parseS3Url } from "@/handlers/lambda/utils/parseS3Url";
+import { getS3ObjectAsWithLocal } from "@/utils/getS3ObjectAsWithLocal";
+
 export async function getContentFromUrl(url: string): Promise<string> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
@@ -5,6 +8,16 @@ export async function getContentFromUrl(url: string): Promise<string> {
   }, 7500);
 
   try {
+    if (url.startsWith("s3://")) {
+      const { key, bucket, version } = parseS3Url(url);
+      const loaded = await getS3ObjectAsWithLocal(key, {
+        format: "string",
+        bucket,
+        version,
+      });
+      return loaded.trim();
+    }
+
     const response = await fetch(url, { signal: controller.signal });
     const data = await response.text();
     return data.trim();

@@ -3,20 +3,6 @@
  * https://github.com/jxson/front-matter
  */
 const parser = require("js-yaml");
-const optionalByteOrderMark = "\\ufeff?";
-const platform = typeof process !== "undefined" ? process.platform : "";
-const pattern =
-  "^(" +
-  optionalByteOrderMark +
-  "(= yaml =|---)" +
-  "$([\\s\\S]*?)" +
-  "^(?:\\2|\\.\\.\\.)\\s*" +
-  "$" +
-  (platform === "win32" ? "\\r?" : "") +
-  "(?:\\n)?)";
-// NOTE: If this pattern uses the 'g' flag the `regex` variable definition will
-// need to be moved down into the functions that use it.
-const regex = new RegExp(pattern, "m");
 
 export function parseFrontmatter(str: string = "") {
   var lines = str.split(/(\r?\n)/);
@@ -48,7 +34,24 @@ export function computeLocation(match: any, body: string) {
 }
 
 export function parse(_str: string) {
-  var match = regex.exec(_str);
+  const optionalByteOrderMark = "\\ufeff?";
+  const platform = typeof process !== "undefined" ? process.platform : "";
+
+  // NOTE: If this pattern uses the 'g' flag the `regex` variable definition will
+  // need to be moved down into the functions that use it.
+  const regex = new RegExp(
+    "^(" +
+      optionalByteOrderMark +
+      "(= yaml =|---)" +
+      "$([\\s\\S]*?)" +
+      "^(?:\\2|\\.\\.\\.)\\s*" +
+      "$" +
+      (platform === "win32" ? "\\r?" : "") +
+      "(?:\\n)?)",
+    "m"
+  );
+
+  const match = regex.exec(_str);
   if (!match) {
     return {
       attributes: {},

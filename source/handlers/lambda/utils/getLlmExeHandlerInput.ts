@@ -1,6 +1,4 @@
-import { LlmExeHandlerInput } from "@/types";
 import { getContentFromUrl } from "@/utils/getContentFromUrl";
-import { getS3ObjectAsJsonWithLocal } from "@/utils/getS3ObjectAsJsonWithLocal";
 import { parseDialogue } from "@/utils/parseDialogue";
 import { parseFrontmatter } from "@/utils/parseFrontmatter";
 import pick = require("lodash.pick");
@@ -13,26 +11,21 @@ export async function getLlmExeHandlerInput(
     output: "string",
   };
 
-  if ("key" in event && "bucket" in event) {
-    const { key, bucket, version, ...restOfPayload } = event;
-    const loaded = await getS3ObjectAsJsonWithLocal<LlmExeHandlerInput>(
-      key,
-      bucket,
-      version
-    );
-
-    // options can be overwritten defaults -> payload -> json
-    return getInputAllowedProperties(Object.assign({}, defaults, restOfPayload, loaded));
-  } else if ("url" in event) {
+  if ("url" in event) {
     const { url, ...restOfPayload } = event;
+
     // get from url
     const loaded = await getContentFromUrl(url);
+
     // check if json or string
     if (loaded.startsWith("{")) {
-      // if json, parse and return it
-      return getInputAllowedProperties(
-        Object.assign({}, defaults, JSON.parse(loaded))
-      );
+      try {
+        // if json, parse and return it
+        const obj = JSON.parse(loaded);
+        return getInputAllowedProperties(Object.assign({}, defaults, obj));
+      } catch (error) {
+        throw new Error(`Failed to parse JSON from ${url}`);
+      }
     }
 
     // if string, try to parse it with frontmatter and prompt-style
@@ -53,7 +46,9 @@ export async function getLlmExeHandlerInput(
     }
 
     // options can be overwritten defaults -> payload -> frontmatter
-    return getInputAllowedProperties(Object.assign({}, defaults, restOfPayload, parsed));
+    return getInputAllowedProperties(
+      Object.assign({}, defaults, restOfPayload, parsed)
+    );
   } else {
     return getInputAllowedProperties(Object.assign({}, defaults, event));
   }

@@ -44,6 +44,25 @@ describe("getKeyObjectFromProvider", () => {
     expect(withKey).toHaveBeenCalledWith("KeyAnthropic");
   });
 
+
+  it("should return xAI API key if provider is xAI and key is found", async () => {
+    const mockApiKey = "mockXAIApiKey";
+    (withKey as jest.Mock).mockResolvedValue(mockApiKey);
+
+    const result = await getKeyObjectFromProvider("xai.chat.v1" as any);
+
+    expect(withKey).toHaveBeenCalledWith("KeyXAI");
+    expect(result).toEqual({ xAiApiKey: mockApiKey });
+  });
+
+  it("should throw an error if xAI key is not found", async () => {
+    (withKey as jest.Mock).mockResolvedValue(null);
+
+    await expect(getKeyObjectFromProvider("xai.chat.v1" as any)).rejects.toThrow("xAI API Key not found");
+    expect(withKey).toHaveBeenCalledWith("KeyXAI");
+  });
+
+
   it("should return an empty object if provider does not require a key", async () => {
     const result = await getKeyObjectFromProvider("unknown.provider" as any);
 

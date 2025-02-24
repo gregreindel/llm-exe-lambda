@@ -1,59 +1,92 @@
 import { getContentFromUrl } from "./getContentFromUrl";
+import { parseS3Url } from "@/handlers/lambda/utils/parseS3Url";
+import { getS3ObjectAsWithLocal } from "@/utils/getS3ObjectAsWithLocal";
+
+jest.mock("@/handlers/lambda/utils/parseS3Url", () => ({
+  parseS3Url: jest.fn(),
+}));
+
+jest.mock("@/utils/getS3ObjectAsWithLocal", () => ({
+  getS3ObjectAsWithLocal: jest.fn(),
+}));
 
 describe("getContentFromUrl", () => {
-  const originalFetch = global.fetch;
-  let clearTimeoutSpy: jest.SpyInstance;
-
   beforeEach(() => {
-    global.fetch = jest.fn();
-    clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
+    jest.clearAllMocks();
   });
 
-  afterEach(() => {
-    jest.resetAllMocks();
-    global.fetch = originalFetch;
-    clearTimeoutSpy.mockRestore();
+  describe("S3 URL handling", () => {
+    it("returns trimmed content from S3", async () => {
+      const s3Url = "s3://bucket/key?version=123";
+      const parsed = { key: "key", bucket: "bucket", version: "123" };
+      (parseS3Url as jest.Mock).mockReturnValue(parsed);
+      (getS3ObjectAsWithLocal as jest.Mock).mockResolvedValue("  some content  ");
+
+      const result = await getContentFromUrl(s3Url);
+
+      expect(parseS3Url).toHaveBeenCalledWith(s3Url);
+      expect(getS3ObjectAsWithLocal).toHaveBeenCalledWith("key", {
+        format: "string",
+        bucket: "bucket",
+        version: "123",
+      });
+      expect(result).toBe("some content");
+    });
+
+    it("throws an error when S3 retrieval fails", async () => {
+      const s3Url = "s3://bucket/key?version=123";
+      const parsed = { key: "key", bucket: "bucket", version: "123" };
+      (parseS3Url as jest.Mock).mockReturnValue(parsed);
+      (getS3ObjectAsWithLocal as jest.Mock).mockRejectedValue(new Error("S3 failure"));
+
+      await expect(getContentFromUrl(s3Url)).rejects.toThrow(`Failed to fetch data from ${s3Url}`);
+      expect(parseS3Url).toHaveBeenCalledWith(s3Url);
+      expect(getS3ObjectAsWithLocal).toHaveBeenCalledWith("key", {
+        format: "string",
+        bucket: "bucket",
+        version: "123",
+      });
+    });
   });
 
-  it("returns trimmed response text when fetch is successful", async () => {
-    const fakeResponseText = "   some fetched data   ";
-    const fakeResponse = {
-      text: jest.fn().mockResolvedValueOnce(fakeResponseText),
-    };
-    const testUrl = "https://example.com/data";
-    (global.fetch as jest.Mock).mockResolvedValueOnce(fakeResponse);
+  describe("HTTP URL handling", () => {
+    const originalFetch = global.fetch;
+    let clearTimeoutSpy: jest.SpyInstance;
 
-    const result = await getContentFromUrl(testUrl);
+    beforeEach(() => {
+      clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
+    });
 
-    // Verify that fetch was called once with the proper arguments and an AbortSignal in the options.
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith(testUrl, expect.objectContaining({
-      signal: expect.any(Object),
-    }));
+    afterEach(() => {
+      global.fetch = originalFetch;
+      clearTimeoutSpy.mockRestore();
+    });
 
-    // Verify that the returned text is trimmed.
-    expect(result).toBe(fakeResponseText.trim());
+    it("returns trimmed content from HTTP fetch", async () => {
+      const httpUrl = "https://example.com/data";
+      const fakeResponse = {
+        text: jest.fn().mockResolvedValue("  hello world  "),
+      };
+      global.fetch = jest.fn().mockResolvedValue(fakeResponse);
 
-    // Verify that clearTimeout was called.
-    expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
-  });
+      const result = await getContentFromUrl(httpUrl);
 
-  it("throws an error when fetch fails", async () => {
-    const testUrl = "https://example.com/error";
-    const fakeError = new Error("Network error");
-    (global.fetch as jest.Mock).mockRejectedValueOnce(fakeError);
+      expect(global.fetch).toHaveBeenCalled();
+      const fetchCallArgs = (global.fetch as jest.Mock).mock.calls[0];
+      expect(fetchCallArgs[0]).toBe(httpUrl);
+      expect(fetchCallArgs[1]).toHaveProperty("signal");
+      expect(fakeResponse.text).toHaveBeenCalled();
+      expect(result).toBe("hello world");
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+    });
 
-    await expect(getContentFromUrl(testUrl)).rejects.toThrow(
-      `Failed to fetch data from ${testUrl}`
-    );
+    it("throws an error when HTTP fetch fails", async () => {
+      const httpUrl = "https://example.com/failure";
+      global.fetch = jest.fn().mockRejectedValue(new Error("Fetch error"));
 
-    // Verify that fetch was called with the proper options.
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith(testUrl, expect.objectContaining({
-      signal: expect.any(Object),
-    }));
-    
-    // Verify that clearTimeout was called even on error.
-    expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
+      await expect(getContentFromUrl(httpUrl)).rejects.toThrow(`Failed to fetch data from ${httpUrl}`);
+      expect(global.fetch).toHaveBeenCalledWith(httpUrl, expect.objectContaining({ signal: expect.any(AbortSignal) }));
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+    });
   });
 });
