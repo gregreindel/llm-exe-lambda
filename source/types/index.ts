@@ -1,18 +1,7 @@
-export interface LlmExeHandlerS3Config {
-  key: string;
-  bucket?: string;
-  version?: string;
-  data?: Record<string, any>;
-}
-
-export interface LlmExeHandlerPublicConfig {
+export interface LlmExeHandlerConfig {
   url: string;
   data?: Record<string, any>;
 }
-
-export type LlmExeHandlerConfig =
-  | LlmExeHandlerS3Config
-  | LlmExeHandlerPublicConfig;
 
 export interface LlmExeHandlerInput {
   provider: "openai" | "anthropic" | "amazon:anthropic" | "amazon:meta";
@@ -21,4 +10,8 @@ export interface LlmExeHandlerInput {
   message: string | { role: string; content: string }[] | string[];
   schema?: Record<string, any>;
   data?: Record<string, any>;
+}
+
+export interface LlmExeRouterConfig {
+  [key: string]: (LlmExeHandlerConfig | LlmExeHandlerInput) & { handler?: string };
 }

@@ -16,7 +16,7 @@ jest.mock("@/utils/inputTextOutputString");
 jest.mock("@/utils/inputTextOutputStringList");
 
 describe("LlmExeHandler", () => {
-  const mockEvent = { key: "value" };
+  const mockEvent = { url: "value" };
   const mockPayload = { payloadKey: "payloadValue" };
   const mockHandlerInput = {
     message: "testMessage",

@@ -14,9 +14,7 @@ import {
 } from "aws-cdk-lib/aws-lambda";
 import { Bucket } from "aws-cdk-lib/aws-s3";
 
-const { version } = require("../../../package.json");
-
-export class LambdaUseLlmExe extends Construct {
+export class LambdaUseLlmExeRouter extends Construct {
   public readonly handler: NodejsFunction;
   constructor(scope: Construct, id: string, args: { llmExeStorageBucket: Bucket }) {
     super(scope, id);
@@ -26,12 +24,12 @@ export class LambdaUseLlmExe extends Construct {
     const region = Stack.of(this).region;
     const account = Stack.of(this).account;
 
-    this.handler = new NodejsFunction(this, "LlmExeHandler", {
-      functionName: `${AppName}-LlmExeHandler`,
-      description: `[Lambda] Use llm-exe helper (v${version})`,
+    this.handler = new NodejsFunction(this, "LlmExeRouter", {
+      functionName: `${AppName}-LlmExeRouter`,
+      description: `[Lambda] Use llm-exe router`,
       entry: path.join(
         __dirname,
-        "../../../source/handlers/lambda/use-llm-exe.handler.ts"
+        "../../../source/handlers/lambda/router.handler.ts"
       ),
       memorySize: 512,
       runtime: Runtime.NODEJS_LATEST,
@@ -85,25 +83,22 @@ export class LambdaUseLlmExe extends Construct {
       );
     }
 
-    const endpointEnabled = this.node.tryGetContext("endpointEnabled");
-    if (!!endpointEnabled) {
-      const endpointAllowedOrigins = this.node.tryGetContext(
-        "endpointAllowedOrigins"
-      );
+    const endpointAllowedOrigins = this.node.tryGetContext(
+      "endpointAllowedOrigins"
+    );
 
-      const lambdaUrl = new FunctionUrl(this, "Url", {
-        function: this.handler,
-        authType: FunctionUrlAuthType.NONE,
-        cors: {
-          allowedOrigins: endpointAllowedOrigins || [],
-          allowedHeaders: ["*"],
-          allowedMethods: [HttpMethod.POST],
-        },
-      });
+    const lambdaUrl = new FunctionUrl(this, "Url", {
+      function: this.handler,
+      authType: FunctionUrlAuthType.NONE,
+      cors: {
+        allowedOrigins: endpointAllowedOrigins || [],
+        allowedHeaders: ["*"],
+        allowedMethods: [HttpMethod.POST],
+      },
+    });
 
-      new CfnOutput(this, "FunctionUrl", {
-        value: lambdaUrl.url,
-      });
-    }
+    new CfnOutput(this, "FunctionUrl", {
+      value: lambdaUrl.url,
+    });
   }
 }

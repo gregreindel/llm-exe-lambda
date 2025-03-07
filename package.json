@@ -35,6 +35,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.629.0",
+    "@aws-sdk/client-sfn": "3.629.0",
+    "@aws-sdk/client-lambda": "3.629.0",
     "js-yaml": "^4.1.0",
     "llm-exe": "2.1.2",
     "lodash.kebabcase": "^4.1.1",

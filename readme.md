@@ -4,7 +4,7 @@
 
 ## Overview
 
-llm-exe Lambda is a purpose‐built AWS CDK stack that acts as a wrapper around the [llm-exe](https://llm-exe.com/) package. It simplifies the integration and orchestration of LLM calls by deploying a Lambda function within your AWS environment. This deployment can be integrated into your workflows – such as AWS Step Functions, API Gateway, SQS – or used as a standalone service to trigger LLM requests with minimal overhead.
+llm-exe Lambda is a purpose‐built AWS CDK stack that acts as a wrapper around the [llm-exe](https://llm-exe.com/) package. It simplifies the integration and orchestration of LLM calls by deploying a Lambda function within your AWS environment. This function can be integrated into your workflows – such as AWS Step Functions, API Gateway, SQS – or used as a standalone service to trigger LLM requests with minimal overhead.
 
 **Key Features:**
 
