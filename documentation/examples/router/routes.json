@@ -6,6 +6,6 @@
         "handler": "arn:aws:lambda:us-west-2:585008045717:function:Test-Function"
     },
     "some-step-function": {
-        "handler": "arn:aws:states:us-west-2:585008045717:stateMachine:TestStepFunction"
+        "handler": "arn:aws:states:us-west-2:585008045717:stateMachine:TestStepFunctionExpress"
     }
 }
