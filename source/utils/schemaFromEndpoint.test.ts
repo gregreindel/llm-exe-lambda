@@ -83,7 +83,7 @@ describe("schemaFromRoutes", () => {
     const result = await schemaFromRoutes(config);
 
     expect(mergeInputsInOrder).toHaveBeenCalledWith(mockRoute, {});
-    expect(schemaEndpointFromRoute).toHaveBeenCalledWith({});
+    expect(schemaEndpointFromRoute).toHaveBeenCalledWith("/test", {});
     expect(result.paths["/test"]).toEqual(mockSchema);
   });
 
@@ -109,7 +109,7 @@ describe("schemaFromRoutes", () => {
     expect(getLlmExeHandlerInput).toHaveBeenCalledWith(mockRoute);
     expect(isInputValid).toHaveBeenCalledWith(mockInput);
     expect(mergeInputsInOrder).toHaveBeenCalledWith(mockRoute, mockInput);
-    expect(schemaEndpointFromRoute).toHaveBeenCalledWith(mockMerged);
+    expect(schemaEndpointFromRoute).toHaveBeenCalledWith("/noHandler", mockMerged);
     expect(result.paths["/noHandler"]).toBe(mockSchema);
   });
 

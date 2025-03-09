@@ -1,12 +1,20 @@
 import { LlmExeRouterConfigRoute } from "@/types";
 import { guessSchemaFromMessage } from "./guessSchemaFromMessage";
+import { guessSchemaFromData } from "./guessSchemaFromData";
+import { deepMergeSchema } from "./deepMergeSchema";
 
-export function schemaEndpointFromRoute(route: LlmExeRouterConfigRoute) {
+export function schemaEndpointFromRoute(
+  path: string,
+  route: LlmExeRouterConfigRoute
+) {
   const method = "post";
-  const summary = route?.summary || "";
+  // use path as summary and description if not defined
+  const summary = route?.summary || `${path}`;
+  const description = route?.description || `${method.toUpperCase()} ${path}`;
 
-  const description = route?.description || "";
-  const operationId = route?.operationId || "";
+  // use path as operationId if not defined
+  const operationId =
+    route?.operationId || `${path.replace(/\//g, "_")}_${method}`;
 
   const requestBody: Record<string, any> = {
     required: true,
@@ -27,14 +35,32 @@ export function schemaEndpointFromRoute(route: LlmExeRouterConfigRoute) {
       },
     };
   } else {
-    if (route.message) {
-      // guess from message
-      const inputSchema = guessSchemaFromMessage(route.message);
-      requestBody.content = {
-        "application/json": {
-          schema: inputSchema,
-        },
-      };
+    // if theres data or a message, we can try to guess the schema
+    if (route?.data || route?.message) {
+      // guess based off data
+      const inputSchemaFromData = route?.data
+        ? guessSchemaFromData(route?.data)
+        : {};
+      // guess based off message
+      const inputSchemaFromMessage = route?.message
+        ? guessSchemaFromMessage(route?.message)
+        : {};
+      if (
+        Object.keys(inputSchemaFromData).length > 0 ||
+        Object.keys(inputSchemaFromMessage).length > 0
+      ) {
+        // merge them
+        const schema = deepMergeSchema(
+          inputSchemaFromMessage,
+          inputSchemaFromData
+        );
+
+        requestBody.content = {
+          "application/json": {
+            schema,
+          },
+        };
+      }
     }
   }
 

@@ -90,7 +90,7 @@ describe("getLlmExeRouterHandlerInput", () => {
     const payload = { someKey: "someValue" };
     const result = await getLlmExeRouterHandlerInput(payload);
 
-    expect(getS3ObjectAsWithLocal).toHaveBeenCalledWith("routes.json", {
+    expect(getS3ObjectAsWithLocal).toHaveBeenCalledWith("router.json", {
       format: "json",
     });
     expect(result).toEqual({ routes: mockS3Routes, data: payload });
@@ -100,7 +100,7 @@ describe("getLlmExeRouterHandlerInput", () => {
     const payload = { router: 12345 };
     const result = await getLlmExeRouterHandlerInput(payload);
 
-    expect(getS3ObjectAsWithLocal).toHaveBeenCalledWith("routes.json", {
+    expect(getS3ObjectAsWithLocal).toHaveBeenCalledWith("router.json", {
       format: "json",
     });
     expect(result).toEqual({ routes: mockS3Routes, data: payload });
@@ -110,7 +110,7 @@ describe("getLlmExeRouterHandlerInput", () => {
     const payload = { routes: false };
     const result = await getLlmExeRouterHandlerInput(payload);
 
-    expect(getS3ObjectAsWithLocal).toHaveBeenCalledWith("routes.json", {
+    expect(getS3ObjectAsWithLocal).toHaveBeenCalledWith("router.json", {
       format: "json",
     });
     expect(result).toEqual({ routes: mockS3Routes, data: payload });

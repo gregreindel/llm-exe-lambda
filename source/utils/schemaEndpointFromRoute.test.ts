@@ -1,8 +1,13 @@
 import { schemaEndpointFromRoute } from "./schemaEndpointFromRoute";
 import { guessSchemaFromMessage } from "./guessSchemaFromMessage";
+import { guessSchemaFromData } from "./guessSchemaFromData";
 
 jest.mock("./guessSchemaFromMessage", () => ({
   guessSchemaFromMessage: jest.fn(),
+}));
+
+jest.mock("./guessSchemaFromData", () => ({
+  guessSchemaFromData: jest.fn(),
 }));
 
 describe("schemaEndpointFromRoute", () => {
@@ -12,12 +17,13 @@ describe("schemaEndpointFromRoute", () => {
 
   it("should return a basic 'post' endpoint with defaults if no fields are provided", () => {
     const route: any = {}; // empty route
-    const result = schemaEndpointFromRoute(route);
+    const path = "test"
+    const result = schemaEndpointFromRoute(path, route);
     expect(result).toHaveProperty("post");
     const post = result.post;
-    expect(post.operationId).toBe("");
-    expect(post.summary).toBe("");
-    expect(post.description).toBe("");
+    expect(post.operationId).toBe("test_post");
+    expect(post.summary).toBe("test");
+    expect(post.description).toBe("POST test");
     expect(post.requestBody).toEqual({
       required: true,
       content: {
@@ -36,12 +42,13 @@ describe("schemaEndpointFromRoute", () => {
   });
 
   it("should set summary, description, operationId from route if provided", () => {
+    const path = "test"
     const route: any = {
       summary: "Test Summary",
       description: "Test Description",
       operationId: "testOperation",
     };
-    const result = schemaEndpointFromRoute(route);
+    const result = schemaEndpointFromRoute(path, route);
     const post = result.post;
     expect(post.summary).toBe("Test Summary");
     expect(post.description).toBe("Test Description");
@@ -49,11 +56,12 @@ describe("schemaEndpointFromRoute", () => {
   });
 
   it("should use inputSchema when route.inputSchema is provided and ignore route.message", () => {
+    const path = "test"
     const route: any = {
       inputSchema: { type: "object", properties: { foo: { type: "string" } } },
       message: "ignored message",
     };
-    const result = schemaEndpointFromRoute(route);
+    const result = schemaEndpointFromRoute(path, route);
     const post = result.post;
     expect(post.requestBody).toEqual({
       required: true,
@@ -71,10 +79,11 @@ describe("schemaEndpointFromRoute", () => {
       type: "object",
       properties: { guessed: { type: "string" } },
     });
+    const path = "test"
     const route: any = {
       message: "Sample message",
     };
-    const result = schemaEndpointFromRoute(route);
+    const result = schemaEndpointFromRoute(path, route);
     const post = result.post;
 
     expect(guessSchemaFromMessage).toHaveBeenCalledWith("Sample message");
@@ -88,11 +97,35 @@ describe("schemaEndpointFromRoute", () => {
     });
   });
 
+  it("should call guessSchemaFromData and set its result if route.data is provided without inputSchema", () => {
+    (guessSchemaFromData as jest.Mock).mockReturnValue({
+      type: "object",
+      properties: { hello: { type: "string" } },
+    });
+    const path = "test"
+    const route: any = {
+      data: { hello: "world"},
+    };
+    const result = schemaEndpointFromRoute(path, route);
+    const post = result.post;
+
+    expect(guessSchemaFromData).toHaveBeenCalledWith({ hello: "world"});
+    expect(post.requestBody).toEqual({
+      required: true,
+      content: {
+        "application/json": {
+          schema: { type: "object", properties: { hello: { type: "string" } } },
+        },
+      },
+    });
+  });
+
   it("should use route.schema in the 200 response if provided", () => {
     const route: any = {
       schema: { type: "array", items: { type: "number" } },
     };
-    const result = schemaEndpointFromRoute(route);
+    const path = "test"
+    const result = schemaEndpointFromRoute(path, route);
     const post = result.post;
     expect(post.responses["200"].content).toEqual({
       "application/json": {
@@ -103,7 +136,8 @@ describe("schemaEndpointFromRoute", () => {
 
   it("should default to text/plain in the 200 response if route.schema is not provided", () => {
     const route: any = {};
-    const result = schemaEndpointFromRoute(route);
+    const path = "test"
+    const result = schemaEndpointFromRoute(path, route);
     expect(result.post.responses["200"].content).toEqual({
       "text/plain": { schema: { type: "string" } },
     });
@@ -118,7 +152,8 @@ describe("schemaEndpointFromRoute", () => {
       message: "Should not be called because inputSchema is present",
       schema: { type: "object", properties: { result: { type: "boolean" } } },
     };
-    const result = schemaEndpointFromRoute(route);
+    const path = "test"
+    const result = schemaEndpointFromRoute(path, route);
     const post = result.post;
 
     expect(post.summary).toBe("Full Test");
@@ -147,7 +182,9 @@ describe("schemaEndpointFromRoute", () => {
     const route: any = {
       inputSchema: invalidInputSchema,
     };
-    const result = schemaEndpointFromRoute(route);
+    const path = "test"
+
+    const result = schemaEndpointFromRoute(path,route);
     expect(result.post.requestBody.content).toEqual({
       "application/json": {
         schema: invalidInputSchema,
@@ -164,7 +201,8 @@ describe("schemaEndpointFromRoute", () => {
     const route: any = {
       message: 12345, // not a string
     };
-    const result = schemaEndpointFromRoute(route);
+    const path = "test"
+    const result = schemaEndpointFromRoute(path, route);
     expect(guessSchemaFromMessage).toHaveBeenCalledWith(12345);
     expect(result.post.requestBody.content).toEqual({
       "application/json": {

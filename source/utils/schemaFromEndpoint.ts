@@ -21,8 +21,9 @@ export async function schemaFromRoutes(config: LlmExeRouterConfig) {
     if (route) {
       if (route.handler) {
         // if a handler, we will depend on the config to provide the schema
-        // maybe should warn or error here if its not defined?
+        // maybe should warn or error here if that is not defined?
         base.paths[path] = schemaEndpointFromRoute(
+          path,
           mergeInputsInOrder(route, {})
         );
       } else {
@@ -31,6 +32,7 @@ export async function schemaFromRoutes(config: LlmExeRouterConfig) {
           console.warn("Warning: input not valid", input);
         } else {
           base.paths[path] = schemaEndpointFromRoute(
+            path,
             mergeInputsInOrder(route, input)
           );
         }

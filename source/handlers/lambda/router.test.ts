@@ -8,6 +8,7 @@ import { invokeFunction } from "@/clients/lambda/invokeFunction";
 import { unLeadingSlashIt } from "@/utils/slashes";
 import { schemaFromRoutes } from "@/utils/schemaFromEndpoint";
 import { LlmExeHandler } from "./use-llm-exe";
+import { mergeInputsInOrder } from "@/utils/mergeInputsInOrder";
 
 jest.mock("./utils/getInputPath", () => ({
   getInputPath: jest.fn(),
@@ -129,7 +130,7 @@ describe("LlmExeRouterHandler", () => {
 
     expect(invokeFunction).toHaveBeenCalledWith({
       FunctionName: "arn:aws:lambda:fake",
-      Payload: JSON.stringify(mockPayload.data),
+      Payload: JSON.stringify(mergeInputsInOrder(mockRoutes.testRoute, mockPayload.data)),
     });
     expect(result).toEqual({
       event: mockEvent,
@@ -143,7 +144,7 @@ describe("LlmExeRouterHandler", () => {
 
     expect(startSyncExecution).toHaveBeenCalledWith({
       stateMachineArn: "arn:aws:states:fake",
-      input: JSON.stringify(mockPayload.data),
+      input: JSON.stringify(mergeInputsInOrder(mockRoutes.testRoute, mockPayload.data)),
     });
     expect(result).toEqual({
       event: mockEvent,

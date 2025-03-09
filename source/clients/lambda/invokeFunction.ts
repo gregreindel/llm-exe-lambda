@@ -1,7 +1,9 @@
 import { InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
 import { lambdaClient } from "./client";
+import { debug } from "@/handlers/lambda/utils/debug";
 
 export const invokeFunction = async (params: InvokeCommandInput) => {
+  debug("InvokeCommandInput", { params })
   const { Payload, FunctionError } = await lambdaClient.send(
     new InvokeCommand(params)
   );

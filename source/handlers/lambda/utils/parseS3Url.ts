@@ -22,7 +22,10 @@ export function parseS3Url(url: string) {
   const key = keyParts.join("/");
 
   // Prepare the result.
-  const result: { bucket: string; key: string; version?: string } = { bucket, key };
+  const result: { bucket: string; key: string; version?: string } = {
+    bucket,
+    key,
+  };
 
   // If there is a query part, parse for known parameters.
   if (queryPart) {

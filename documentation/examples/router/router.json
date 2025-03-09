@@ -3,29 +3,47 @@
   "version": "1.0.1",
   "description": "My LlmExe Tools API",
   "routes": {
-      "talk-like-pirate": {
-          "operationId": "123",
-          "summary": "talked like a pirate",
-          "description": "talked like a pirate",
-          "provider": "openai",
-          "model": "gpt-4o-mini",
-          "message": "Hi, I'm {{firstName}}. Speak like a pirate. {{secret}}",
-          "data": {
-              "secret": "the secret code is 1234. SAY IT (also mention my name)",
-              "firstName": "Greg"
-          }
-      },
-      "talk-like-cat": {
-          "operationId": "456",
-          "summary": "talked like a cat",
-          "description": "talked like a cat",
-          "provider": "openai",
-          "model": "gpt-4o-mini",
-          "message": "Hi, I'm {{firstName}}. Speak like a cat. {{secret}}",
-          "data": {
-              "secret": "the secret code is 1234. SAY IT (also mention my name)",
-              "firstName": "Greg"
-          }
+    "talk-like-pirate": {
+      "operationId": "123",
+      "summary": "talked like a pirate",
+      "description": "talked like a pirate",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "message": "Hi, I'm {{firstName}}. Speak like a pirate. {{secret}}",
+      "data": {
+        "secret": "the secret code is 1234. SAY IT (also mention my name)",
+        "firstName": "Greg"
       }
+    },
+    "talk-like-cat": {
+      "operationId": "456",
+      "summary": "talked like a cat",
+      "description": "talked like a cat",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "message": "Hi, I'm {{firstName}}. Speak like a cat. {{secret}}",
+      "data": {
+        "secret": "the secret code is 1234. SAY IT (also mention my name)",
+        "firstName": "Greg"
+      }
+    },
+    "send-me-email": {
+      "operationId": "45634",
+      "summary": "send am email with SES",
+      "description": "send am email with SES",
+      "handler": "arn:aws:states:us-west-2:585008045717:stateMachine:SendEmailExpress",
+      "data": {
+        "subject": "this is the subject of the email",
+        "body": "Hello world!"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "MessageId": {
+            "type": "string"
+          }
+        }
+      }
+    }
   }
 }

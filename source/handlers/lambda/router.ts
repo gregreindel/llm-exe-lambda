@@ -9,6 +9,7 @@ import { invokeFunction } from "@/clients/lambda/invokeFunction";
 import { unLeadingSlashIt } from "@/utils/slashes";
 import { schemaFromRoutes } from "@/utils/schemaFromEndpoint";
 import { debug } from "./utils/debug";
+import { mergeInputsInOrder } from "@/utils/mergeInputsInOrder";
 
 export async function LlmExeRouterHandler(
   event: LlmExeHandlerInput | LlmExeHandlerConfig
@@ -46,18 +47,19 @@ export async function LlmExeRouterHandler(
     if (route?.handler?.startsWith("arn:aws:lambda")) {
       const lambdaResponse = await invokeFunction({
         FunctionName: route.handler,
-        Payload: JSON.stringify(input.data),
+        Payload: JSON.stringify(mergeInputsInOrder(route, input.data)),
       });
       return getOutputPayload(event, lambdaResponse);
     } else if (route?.handler?.startsWith("arn:aws:states")) {
       const sfnResponse = await startSyncExecution({
         stateMachineArn: route.handler,
-        input: JSON.stringify(input.data),
+        input: JSON.stringify(mergeInputsInOrder(route, input.data)),
       });
       return getOutputPayload(event, sfnResponse);
     }
 
-    const response = await LlmExeHandler(Object.assign({}, route, input.data));
+
+    const response = await LlmExeHandler(mergeInputsInOrder(route, input.data));
 
     return getOutputPayload(event, response);
   } catch (error) {

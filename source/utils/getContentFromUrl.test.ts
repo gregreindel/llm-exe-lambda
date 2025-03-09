@@ -20,7 +20,9 @@ describe("getContentFromUrl", () => {
       const s3Url = "s3://bucket/key?version=123";
       const parsed = { key: "key", bucket: "bucket", version: "123" };
       (parseS3Url as jest.Mock).mockReturnValue(parsed);
-      (getS3ObjectAsWithLocal as jest.Mock).mockResolvedValue("  some content  ");
+      (getS3ObjectAsWithLocal as jest.Mock).mockResolvedValue(
+        "  some content  "
+      );
 
       const result = await getContentFromUrl(s3Url);
 
@@ -37,9 +39,13 @@ describe("getContentFromUrl", () => {
       const s3Url = "s3://bucket/key?version=123";
       const parsed = { key: "key", bucket: "bucket", version: "123" };
       (parseS3Url as jest.Mock).mockReturnValue(parsed);
-      (getS3ObjectAsWithLocal as jest.Mock).mockRejectedValue(new Error("S3 failure"));
+      (getS3ObjectAsWithLocal as jest.Mock).mockRejectedValue(
+        new Error("S3 failure")
+      );
 
-      await expect(getContentFromUrl(s3Url)).rejects.toThrow(`Failed to fetch data from ${s3Url}`);
+      await expect(getContentFromUrl(s3Url)).rejects.toThrow(
+        `Failed to fetch data from ${s3Url}`
+      );
       expect(parseS3Url).toHaveBeenCalledWith(s3Url);
       expect(getS3ObjectAsWithLocal).toHaveBeenCalledWith("key", {
         format: "string",
@@ -84,26 +90,31 @@ describe("getContentFromUrl", () => {
       const httpUrl = "https://example.com/failure";
       global.fetch = jest.fn().mockRejectedValue(new Error("Fetch error"));
 
-      await expect(getContentFromUrl(httpUrl)).rejects.toThrow(`Failed to fetch data from ${httpUrl}`);
-      expect(global.fetch).toHaveBeenCalledWith(httpUrl, expect.objectContaining({ signal: expect.any(AbortSignal) }));
+      await expect(getContentFromUrl(httpUrl)).rejects.toThrow(
+        `Failed to fetch data from ${httpUrl}`
+      );
+      expect(global.fetch).toHaveBeenCalledWith(
+        httpUrl,
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
+      );
       expect(clearTimeoutSpy).toHaveBeenCalled();
     });
   });
 
   it("aborts the fetch request immediately (mocked) to test timeout behavior", async () => {
     const httpUrl = "https://example.com/timeout";
-  
+
     // Preserve originals
     const originalFetch = global.fetch;
     const originalSetTimeout = global.setTimeout;
-  
+
     try {
       // Mock setTimeout to call abort callback immediately
       (global as any).setTimeout = jest.fn((callback) => {
         callback(); // Immediately aborts
-        return 0;   // Simulate a timeout ID
+        return 0; // Simulate a timeout ID
       });
-  
+
       // Mock fetch to simulate a never-resolving request unless aborted
       global.fetch = jest.fn((_url, { signal }: any) => {
         return new Promise((_resolve, reject) => {
@@ -113,12 +124,12 @@ describe("getContentFromUrl", () => {
           }
         });
       });
-  
+
       // Validate that the function throws our expected error
       await expect(getContentFromUrl(httpUrl)).rejects.toThrow(
         `Failed to fetch data from ${httpUrl}`
       );
-  
+
       // Ensure fetch was called with a signal
       expect(global.fetch).toHaveBeenCalledWith(
         httpUrl,
@@ -133,4 +144,12 @@ describe("getContentFromUrl", () => {
     }
   });
 
+  it("errors immediately if url is not set", async () => {
+    const httpUrl = "";
+    await expect(getContentFromUrl(httpUrl)).rejects.toThrow("Missing url");
+  });
+  it("errors immediately if url is not valid", async () => {
+    const httpUrl = "not a valid url";
+    await expect(getContentFromUrl(httpUrl)).rejects.toThrow("Invalid url");
+  });
 });
