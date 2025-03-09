@@ -4,6 +4,7 @@
     ],
     "context": {
         "endpointEnabled": true,
+        "endpointAccessToken": "please-change-me-im-not-secure-944564829",
         "terminationProtection": false,
         "allowedBedrockModels": ["*"],
         "endpointAllowedOrigins": ["*"],

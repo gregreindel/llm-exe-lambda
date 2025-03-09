@@ -3,8 +3,8 @@ import { getInputPath } from "./utils/getInputPath";
 import { getInputPayload } from "./utils/getInputPayload";
 import { getOutputPayload } from "./utils/getOutputPayload";
 import { getLlmExeRouterHandlerInput } from "./utils/getLlmExeRouterHandlerInput";
-import { sfnClientStartSyncExecution } from "@/clients/sfn";
-import { lambdaClientInvoke } from "@/clients/lambda";
+import { startSyncExecution } from "@/clients/sfn/startSyncExecution";
+import { invokeFunction } from "@/clients/lambda/invokeFunction";
 import { unLeadingSlashIt } from "@/utils/slashes";
 import { schemaFromRoutes } from "@/utils/schemaFromEndpoint";
 import { LlmExeHandler } from "./use-llm-exe";
@@ -21,11 +21,11 @@ jest.mock("./utils/getOutputPayload", () => ({
 jest.mock("./utils/getLlmExeRouterHandlerInput", () => ({
   getLlmExeRouterHandlerInput: jest.fn(),
 }));
-jest.mock("@/clients/sfn", () => ({
-  sfnClientStartSyncExecution: jest.fn(),
+jest.mock("@/clients/sfn/startSyncExecution", () => ({
+  startSyncExecution: jest.fn(),
 }));
-jest.mock("@/clients/lambda", () => ({
-  lambdaClientInvoke: jest.fn(),
+jest.mock("@/clients/lambda/invokeFunction", () => ({
+  invokeFunction: jest.fn(),
 }));
 jest.mock("@/utils/slashes", () => ({
   unLeadingSlashIt: jest.fn(),
@@ -72,8 +72,8 @@ describe("LlmExeRouterHandler", () => {
         ? path.slice(1)
         : path
     );
-    (lambdaClientInvoke as jest.Mock).mockResolvedValue("lambdaResult");
-    (sfnClientStartSyncExecution as jest.Mock).mockResolvedValue("sfnResult");
+    (invokeFunction as jest.Mock).mockResolvedValue("lambdaResult");
+    (startSyncExecution as jest.Mock).mockResolvedValue("sfnResult");
     (schemaFromRoutes as jest.Mock).mockResolvedValue("schemaResult");
     (LlmExeHandler as jest.Mock).mockResolvedValue("llmExeHandlerResult");
   });
@@ -123,11 +123,11 @@ describe("LlmExeRouterHandler", () => {
     expect(result.response.message).toContain("Route not found: (/weirdRoute)");
   });
 
-  it("calls lambdaClientInvoke if route.handler starts with 'arn:aws:lambda'", async () => {
+  it("calls invokeFunction if route.handler starts with 'arn:aws:lambda'", async () => {
     mockRoutes.testRoute.handler = "arn:aws:lambda:fake";
     const result = await LlmExeRouterHandler(mockEvent);
 
-    expect(lambdaClientInvoke).toHaveBeenCalledWith({
+    expect(invokeFunction).toHaveBeenCalledWith({
       FunctionName: "arn:aws:lambda:fake",
       Payload: JSON.stringify(mockPayload.data),
     });
@@ -137,11 +137,11 @@ describe("LlmExeRouterHandler", () => {
     });
   });
 
-  it("calls sfnClientStartSyncExecution if route.handler starts with 'arn:aws:states'", async () => {
+  it("calls startSyncExecution if route.handler starts with 'arn:aws:states'", async () => {
     mockRoutes.testRoute.handler = "arn:aws:states:fake";
     const result = await LlmExeRouterHandler(mockEvent);
 
-    expect(sfnClientStartSyncExecution).toHaveBeenCalledWith({
+    expect(startSyncExecution).toHaveBeenCalledWith({
       stateMachineArn: "arn:aws:states:fake",
       input: JSON.stringify(mockPayload.data),
     });

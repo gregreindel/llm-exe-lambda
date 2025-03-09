@@ -82,7 +82,7 @@ describe("getLlmExeRouterHandlerInput", () => {
     const payload = { routes: routesObject };
 
     const result = await getLlmExeRouterHandlerInput(payload);
-    expect(getLlmExeRoutes).toHaveBeenCalledWith(routesObject);
+    expect(getLlmExeRoutes).toHaveBeenCalledWith(payload);
     expect(result).toEqual(mockParsedRoutes);
   });
 

@@ -313,7 +313,7 @@ curl --location 'YOUR_FUNCTION_URL/invoke' \
   "provider": "openai",
   "model": "gpt-4o-mini",
   "output": "string",
-  "message": "Talk like a kitten. Hello!"
+  "message": "Talk like a pirate. Hello!"
 }'
 ```
 
@@ -328,7 +328,7 @@ Note: Replace YOUR_FUNCTION_URL with your actual function's url.
   "provider": "openai",
   "model": "gpt-4o-mini",
   "output": "string",
-  "message": "Talk like a kitten. Hello!"
+  "message": "Talk like a pirate. Hello!"
 }
 ```
 
@@ -360,7 +360,7 @@ Example 2: Anthropic Provider using a Structured Chat Message
   "message": [
     {
       "role": "user",
-      "content": "Talk like a kitten. Hello!"
+      "content": "Talk like a pirate. Hello!"
     }
   ]
 }

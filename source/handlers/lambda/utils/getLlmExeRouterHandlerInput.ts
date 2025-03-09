@@ -35,7 +35,7 @@ export async function getLlmExeRouterHandlerInput(
 
   // If "routes" is an object, use it directly
   if (payload?.routes && typeof payload.routes === "object") {
-    return getLlmExeRoutes(payload.routes);
+    return getLlmExeRoutes(payload);
   }
 
   // Otherwise, fall back to S3

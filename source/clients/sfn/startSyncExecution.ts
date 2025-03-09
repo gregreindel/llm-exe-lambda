@@ -1,16 +1,11 @@
 import {
-  SFNClient,
   StartSyncExecutionCommand,
   StartSyncExecutionCommandInput,
 } from "@aws-sdk/client-sfn";
+import { sfnClient } from "./client";
 
-const { DEPLOY_REGION } = process.env;
 
-export const sfnClient = new SFNClient({
-  region: DEPLOY_REGION,
-});
-
-export async function sfnClientStartSyncExecution(
+export async function startSyncExecution(
   params: StartSyncExecutionCommandInput
 ) {
   try {

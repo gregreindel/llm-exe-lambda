@@ -1,16 +1,7 @@
-import {
-  LambdaClient,
-  InvokeCommand,
-  InvokeCommandInput,
-} from "@aws-sdk/client-lambda";
+import { InvokeCommand, InvokeCommandInput } from "@aws-sdk/client-lambda";
+import { lambdaClient } from "./client";
 
-const { DEPLOY_REGION } = process.env;
-
-export const lambdaClient = new LambdaClient({
-  region: DEPLOY_REGION,
-});
-
-export const lambdaClientInvoke = async (params: InvokeCommandInput) => {
+export const invokeFunction = async (params: InvokeCommandInput) => {
   const { Payload, FunctionError } = await lambdaClient.send(
     new InvokeCommand(params)
   );
