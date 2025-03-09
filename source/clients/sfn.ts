@@ -13,8 +13,12 @@ export const sfnClient = new SFNClient({
 export async function sfnClientStartSyncExecution(
   params: StartSyncExecutionCommandInput
 ) {
-  const { output = "{}" } = await sfnClient.send(
-    new StartSyncExecutionCommand(params)
-  );
-  return JSON.parse(output);
+  try {
+    const response = await sfnClient.send(
+      new StartSyncExecutionCommand(params)
+    );
+    return JSON.parse(response.output || "{}");
+  } catch (error) {
+    throw error;
+  }
 }

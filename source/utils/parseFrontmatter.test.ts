@@ -12,6 +12,16 @@ describe("parseFrontmatter", () => {
     jest.clearAllMocks();
   });
 
+  it("returns default object when input is not a string is not present", () => {
+    const input = undefined;
+    const result = parseFrontmatter(input as unknown as string);
+    expect(result).toEqual({
+      attributes: {},
+      body: "",
+      bodyBegin: 1,
+    });
+  });
+
   it("returns default object when frontmatter marker is not present", () => {
     const input = "This is a body without frontmatter.";
     const result = parseFrontmatter(input);

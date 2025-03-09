@@ -24,10 +24,10 @@ export function getInputPath(event: Record<string, any>): string {
     case "lambda-url":
       // For Lambda URL events, check the rawPath property.
       return typeof event.rawPath === "string" ? event.rawPath : "";
-    case "bedrock":
+    case "bedrock-agent":
       // For Bedrock events, ensure that the nested agent object exists and its path property is a string.
-      return event.agent && typeof event.agent.path === "string"
-        ? event.agent.path
+      return event.apiPath && typeof event.apiPath === "string"
+        ? event.apiPath
         : "";
     default:
       // For any unrecognized event type, return an empty string.

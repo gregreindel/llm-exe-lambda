@@ -4,7 +4,14 @@
  */
 const parser = require("js-yaml");
 
-export function parseFrontmatter(str: string = "") {
+export function parseFrontmatter(str: string) {
+  if (typeof str !== "string") {
+    return {
+      attributes: {},
+      body: "",
+      bodyBegin: 1,
+    };
+  }
   var lines = str.split(/(\r?\n)/);
   if (lines[0] && /= yaml =|---/.test(lines[0])) {
     return parse(str);
@@ -35,7 +42,7 @@ export function computeLocation(match: any, body: string) {
 
 export function parse(_str: string) {
   const optionalByteOrderMark = "\\ufeff?";
-  const platform = typeof process !== "undefined" ? process.platform : "";
+  // const platform = typeof process !== "undefined" ? process.platform : "";
 
   // NOTE: If this pattern uses the 'g' flag the `regex` variable definition will
   // need to be moved down into the functions that use it.
@@ -46,7 +53,7 @@ export function parse(_str: string) {
       "$([\\s\\S]*?)" +
       "^(?:\\2|\\.\\.\\.)\\s*" +
       "$" +
-      (platform === "win32" ? "\\r?" : "") +
+      "" +
       "(?:\\n)?)",
     "m"
   );

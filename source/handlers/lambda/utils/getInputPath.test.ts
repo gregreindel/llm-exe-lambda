@@ -60,13 +60,13 @@ describe("getInputPath", () => {
 
   describe("when event type is 'bedrock'", () => {
     beforeEach(() => {
-      (lambdaEventType as jest.Mock).mockReturnValue("bedrock");
+      (lambdaEventType as jest.Mock).mockReturnValue("bedrock-agent");
     });
 
     it("should return agent.path if it is a string", () => {
-      const event = { agent: { path: "/bedrock/test" } };
+      const event = { apiPath: "bedrock-test" };
       const result = getInputPath(event);
-      expect(result).toBe("/bedrock/test");
+      expect(result).toBe("bedrock-test");
     });
 
     it("should return an empty string if agent.path is not a string", () => {

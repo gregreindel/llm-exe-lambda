@@ -89,4 +89,48 @@ describe("getContentFromUrl", () => {
       expect(clearTimeoutSpy).toHaveBeenCalled();
     });
   });
+
+  it("aborts the fetch request immediately (mocked) to test timeout behavior", async () => {
+    const httpUrl = "https://example.com/timeout";
+  
+    // Preserve originals
+    const originalFetch = global.fetch;
+    const originalSetTimeout = global.setTimeout;
+  
+    try {
+      // Mock setTimeout to call abort callback immediately
+      (global as any).setTimeout = jest.fn((callback) => {
+        callback(); // Immediately aborts
+        return 0;   // Simulate a timeout ID
+      });
+  
+      // Mock fetch to simulate a never-resolving request unless aborted
+      global.fetch = jest.fn((_url, { signal }: any) => {
+        return new Promise((_resolve, reject) => {
+          // If the signal is already aborted, reject immediately
+          if (signal.aborted) {
+            return reject(new Error("Aborted"));
+          }
+        });
+      });
+  
+      // Validate that the function throws our expected error
+      await expect(getContentFromUrl(httpUrl)).rejects.toThrow(
+        `Failed to fetch data from ${httpUrl}`
+      );
+  
+      // Ensure fetch was called with a signal
+      expect(global.fetch).toHaveBeenCalledWith(
+        httpUrl,
+        expect.objectContaining({
+          signal: expect.any(AbortSignal),
+        })
+      );
+    } finally {
+      // Restore originals
+      global.fetch = originalFetch;
+      global.setTimeout = originalSetTimeout;
+    }
+  });
+
 });

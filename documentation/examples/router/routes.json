@@ -3,7 +3,33 @@
         "url": "https://raw.githubusercontent.com/gregreindel/llm-exe-lambda/refs/heads/main/documentation/examples/url/basic-chat-with-data.md"
     },
     "some-lambda": {
-        "handler": "arn:aws:lambda:us-west-2:585008045717:function:Test-Function"
+        "handler": "arn:aws:lambda:us-west-2:585008045717:function:Test-Function",
+        "schema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string",
+                "default": "none",
+                "description": "The query you would like to use as the google search."
+              },
+              "explanation": {
+                "type": "string",
+                "default": "none",
+                "description": "Act like you are working with a colleague. Explain to them what you need to do."
+              },
+              "thought": {
+                "type": "string",
+                "default": "none",
+                "description": "Explain your thoughts in first-person"
+              }
+            },
+            "required": [
+              "query",
+              "explanation",
+              "thought"
+            ],
+            "additionalProperties": false
+          }
     },
     "some-step-function": {
         "handler": "arn:aws:states:us-west-2:585008045717:stateMachine:TestStepFunctionExpress"

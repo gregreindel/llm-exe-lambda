@@ -16,7 +16,11 @@ import { Bucket } from "aws-cdk-lib/aws-s3";
 
 export class LambdaUseLlmExeRouter extends Construct {
   public readonly handler: NodejsFunction;
-  constructor(scope: Construct, id: string, args: { llmExeStorageBucket: Bucket }) {
+  constructor(
+    scope: Construct,
+    id: string,
+    args: { llmExeStorageBucket: Bucket }
+  ) {
     super(scope, id);
 
     const AppName = this.node.tryGetContext("AppName");
@@ -100,5 +104,29 @@ export class LambdaUseLlmExeRouter extends Construct {
     new CfnOutput(this, "FunctionUrl", {
       value: lambdaUrl.url,
     });
+
+    const lambdasWeCanInvoke =
+      this.node.tryGetContext("routerExternalLambdaAllowedToInvoke") || [];
+    if (lambdasWeCanInvoke.length > 0) {
+      this.handler.addToRolePolicy(
+        new iam.PolicyStatement({
+          actions: ["lambda:InvokeFunction"],
+          resources: lambdasWeCanInvoke,
+        })
+      );
+    }
+
+    const stepFunctionAllowedToStartSyncExecution =
+      this.node.tryGetContext(
+        "routerExternalStepFunctionAllowedToStartSyncExecution"
+      ) || [];
+    if (stepFunctionAllowedToStartSyncExecution.length > 0) {
+      this.handler.addToRolePolicy(
+        new iam.PolicyStatement({
+          actions: ["states:StartSyncExecution"],
+          resources: stepFunctionAllowedToStartSyncExecution,
+        })
+      );
+    }
   }
 }

@@ -14,7 +14,7 @@ export function lambdaEventType(event: Record<string, any>) {
       event?.Records[0].eventSource === "aws:sqs":
       return "sqs";
     case event.agent !== undefined:
-      return "bedrock";
+      return "bedrock-agent";
     case (event.version === "2.0" && event?.requestContext?.http !== undefined):
         return "lambda-url";
     default:

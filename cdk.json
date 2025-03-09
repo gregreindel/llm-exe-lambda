@@ -6,6 +6,8 @@
         "endpointEnabled": true,
         "terminationProtection": false,
         "allowedBedrockModels": ["*"],
-        "endpointAllowedOrigins": ["*"]
+        "endpointAllowedOrigins": ["*"],
+        "routerExternalLambdaAllowedToInvoke": [],
+        "routerExternalStepFunctionAllowedToStartSyncExecution": []
     }
   }

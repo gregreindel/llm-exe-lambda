@@ -23,8 +23,14 @@ describe('lambdaEventType', () => {
 
   it('identifies a Bedrock event', () => {
     const event = { agent: 'someAgent' };
-    expect(lambdaEventType(event)).toBe('bedrock');
+    expect(lambdaEventType(event)).toBe('bedrock-agent');
   });
+
+  it('identifies a lambda url event', () => {
+    const event = { version: '2.0', requestContext: { http: "" } };
+    expect(lambdaEventType(event)).toBe('lambda-url');
+  });
+
 
   it('returns "unknown" for an unrecognized event', () => {
     const event = { unknownProperty: 'unknownValue' };
