@@ -8,20 +8,26 @@ import { startSyncExecution } from "@/clients/sfn/startSyncExecution";
 import { invokeFunction } from "@/clients/lambda/invokeFunction";
 import { unLeadingSlashIt } from "@/utils/slashes";
 import { schemaFromRoutes } from "@/utils/schemaFromEndpoint";
+import { debug } from "./utils/debug";
 
 export async function LlmExeRouterHandler(
   event: LlmExeHandlerInput | LlmExeHandlerConfig
 ) {
   try {
+    debug("LlmExeRouterHandler", { event });
+
     const path = getInputPath(event);
+    debug("LlmExeRouterHandler", { path });
 
     if (!path || path === "/") {
       throw new Error("Path not found");
     }
 
     const payload = getInputPayload(event);
+    debug("LlmExeRouterHandler", { payload });
 
     const input = await getLlmExeRouterHandlerInput(payload);
+    debug("LlmExeRouterHandler", { input });
 
     if (path === "/schema.json") {
       const schema = await schemaFromRoutes(
@@ -31,6 +37,7 @@ export async function LlmExeRouterHandler(
     }
 
     const route = input?.routes?.[unLeadingSlashIt(path)];
+    debug("LlmExeRouterHandler", { route });
 
     if (!route || typeof route !== "object") {
       throw new Error(`Route not found: (${path})`);

@@ -40,7 +40,7 @@ export async function getLlmExeRouterHandlerInput(
 
   // Otherwise, fall back to S3
   const routes = await getS3ObjectAsWithLocal<LlmExeRouterConfig>(
-    "routes.json",
+    "router.json",
     { format: "json" }
   );
   return {
