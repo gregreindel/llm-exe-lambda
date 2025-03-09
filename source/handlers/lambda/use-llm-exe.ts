@@ -6,13 +6,19 @@ import { getInputPayload } from "./utils/getInputPayload";
 import { getOutputPayload } from "./utils/getOutputPayload";
 import { getLlmExeHandlerInput } from "./utils/getLlmExeHandlerInput";
 import { isInputValid } from "./utils/assertPayloadIsValid";
+import { debug } from "./utils/debug";
 
 export async function LlmExeHandler(
   event: LlmExeHandlerInput | LlmExeHandlerConfig
 ) {
+  debug("LlmExeHandler", { event });
+
   try {
     const payload = getInputPayload(event);
+    debug("LlmExeHandler", { payload });
+
     const input = await getLlmExeHandlerInput(payload);
+    debug("LlmExeHandler", { input });
 
     if (!isInputValid(input)) {
       throw new Error("Invalid input");
@@ -21,6 +27,7 @@ export async function LlmExeHandler(
     let response;
     const { schema = {} } = input;
     const provider = `${input.provider}.chat.v1`;
+    debug("LlmExeHandler", { provider });
 
     if (input.output === "json") {
       response = await inputTextOutputJson(input.message, {
@@ -46,6 +53,7 @@ export async function LlmExeHandler(
       });
     }
 
+    debug("LlmExeHandler", { response });
     return getOutputPayload(event, response);
   } catch (error) {
     return getOutputPayload(event, error);

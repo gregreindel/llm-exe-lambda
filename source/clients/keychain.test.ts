@@ -44,4 +44,19 @@ describe("withKey function", () => {
 
     expect(lambdaGetParameterMock).toHaveBeenCalledTimes(4);
   });
+
+
+  it("returns existing key from chain if it is already set", async () => {
+    // First, set the key directly in the chain
+    await withKey(mockKeyName); // This call sets it internally
+    // Clear mock so we can confirm it's not called again
+    lambdaGetParameterMock.mockClear();
+  
+    const value = await withKey(mockKeyName);
+  
+    expect(lambdaGetParameterMock).not.toHaveBeenCalled();
+    expect(value).toBe(mockKeyValue);
+  });
+
+
 });

@@ -1,7 +1,16 @@
 import { parseS3Url } from "@/handlers/lambda/utils/parseS3Url";
 import { getS3ObjectAsWithLocal } from "@/utils/getS3ObjectAsWithLocal";
+import { isValidUrl } from "./isValidUrl";
 
 export async function getContentFromUrl(url: string): Promise<string> {
+  if (!url) {
+    throw new Error("Missing url");
+  }
+
+  if (!isValidUrl(url)) {
+    throw new Error("Invalid url");
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();

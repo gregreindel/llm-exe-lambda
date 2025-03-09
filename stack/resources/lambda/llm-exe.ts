@@ -12,12 +12,13 @@ import {
   ParamsAndSecretsLayerVersion,
   ParamsAndSecretsVersions,
 } from "aws-cdk-lib/aws-lambda";
+import { Bucket } from "aws-cdk-lib/aws-s3";
 
 const { version } = require("../../../package.json");
 
 export class LambdaUseLlmExe extends Construct {
   public readonly handler: NodejsFunction;
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, args: { llmExeStorageBucket: Bucket }) {
     super(scope, id);
 
     const AppName = this.node.tryGetContext("AppName");
@@ -60,6 +61,15 @@ export class LambdaUseLlmExe extends Construct {
           kms.Alias.fromAliasName(this, "ssmKms", "alias/aws/ssm").keyArn,
         ],
       })
+    );
+
+    // Add bucket permissions
+    args.llmExeStorageBucket.grantReadWrite(this.handler);
+
+    // Add bucket name to environment
+    this.handler.addEnvironment(
+      "AWS_S3_FILES_BUCKET_NAME",
+      args.llmExeStorageBucket.bucketName
     );
 
     const allowedBedrockModels = this.node.tryGetContext(

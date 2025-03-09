@@ -42,7 +42,7 @@ describe("lambdaGetParameter", () => {
     });
     jest.spyOn(http, "request").mockImplementation(mockedRequest);
 
-    process.env.NODE_ENV = "staging";
+    process.env.NODE_ENV = undefined;
     process.env.AWS_SESSION_TOKEN = "SomeFakeSessionToken";
     process.env.STACK_NAME = "ApplicationName";
  

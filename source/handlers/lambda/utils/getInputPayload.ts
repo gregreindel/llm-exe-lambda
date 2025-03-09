@@ -1,4 +1,5 @@
 import { lambdaEventType } from "@/utils/lambdaEventType";
+import { getBedrockAgentPayload } from "./getBedrockAgentPayload";
 
 /**
  * Normalizes the event object to a standard format regardless of the source.
@@ -18,8 +19,15 @@ export function getInputPayload(
       return event.Records[0].Sns.Message;
     case "sqs":
       return event.Records[0].body;
-    case "bedrock":
-      return event.agent.input;
+    case "bedrock-agent":
+      return {
+        data: {
+          ...getBedrockAgentPayload(event),
+          inputText: event.inputText || "",
+          sessionAttributes: event.sessionAttributes || {},
+          promptSessionAttributes: event.promptSessionAttributes || {},
+        },
+      };
     case "lambda-url":
       return JSON.parse(event.body);
     default:

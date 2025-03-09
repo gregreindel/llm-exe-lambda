@@ -4,7 +4,7 @@
 
 ## Overview
 
-llm-exe Lambda is a purpose‐built AWS CDK stack that acts as a wrapper around the [llm-exe](https://llm-exe.com/) package. It simplifies the integration and orchestration of LLM calls by deploying a Lambda function within your AWS environment. This deployment can be integrated into your workflows – such as AWS Step Functions, API Gateway, SQS – or used as a standalone service to trigger LLM requests with minimal overhead.
+llm-exe Lambda is a purpose‐built AWS CDK stack that acts as a wrapper around the [llm-exe](https://llm-exe.com/) package. It simplifies the integration and orchestration of LLM calls by deploying a Lambda function within your AWS environment. This function can be integrated into your workflows – such as AWS Step Functions, API Gateway, SQS – or used as a standalone service to trigger LLM requests with minimal overhead.
 
 **Key Features:**
 
@@ -313,7 +313,7 @@ curl --location 'YOUR_FUNCTION_URL/invoke' \
   "provider": "openai",
   "model": "gpt-4o-mini",
   "output": "string",
-  "message": "Talk like a kitten. Hello!"
+  "message": "Talk like a pirate. Hello!"
 }'
 ```
 
@@ -328,7 +328,7 @@ Note: Replace YOUR_FUNCTION_URL with your actual function's url.
   "provider": "openai",
   "model": "gpt-4o-mini",
   "output": "string",
-  "message": "Talk like a kitten. Hello!"
+  "message": "Talk like a pirate. Hello!"
 }
 ```
 
@@ -360,7 +360,7 @@ Example 2: Anthropic Provider using a Structured Chat Message
   "message": [
     {
       "role": "user",
-      "content": "Talk like a kitten. Hello!"
+      "content": "Talk like a pirate. Hello!"
     }
   ]
 }

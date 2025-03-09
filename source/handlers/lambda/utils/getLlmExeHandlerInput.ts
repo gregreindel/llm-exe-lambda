@@ -29,7 +29,7 @@ export async function getLlmExeHandlerInput(
     }
 
     // if string, try to parse it with frontmatter and prompt-style
-    const { body = "", attributes = {} } = parseFrontmatter(loaded);
+    const { body, attributes } = parseFrontmatter(loaded);
     const parsed: Record<string, any> = pick(attributes, [
       "provider",
       "model",
