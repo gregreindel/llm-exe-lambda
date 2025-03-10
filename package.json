@@ -2,10 +2,11 @@
   "name": "llm-exe-lambda",
   "version": "2.1.2",
   "scripts": {
-    "test": "eval $(cat .env.test) jest --config jest.config.ts --maxWorkers 3 --coverage",
+    "test": "eval $(cat .env.test) jest --config jest.config.ts --maxWorkers 7 --coverage",
     "build:watch": "(concurrently \"tsc -w\" \"tsc-alias -w\")",
     "bootstrap": "eval $(cat .env) . scripts/deploy.sh -bootstrap",
     "update-secrets": "eval $(cat .env) . scripts/deploy.sh -update-secrets",
+    "update-router": "eval $(cat .env) . scripts/deploy.sh -update-router",
     "synth": "eval $(cat .env) . scripts/deploy.sh -synth",
     "deploy": "eval $(cat .env) . scripts/deploy.sh -deploy",
     "prettier": "prettier --write \"**/*.{ts,js,json,md}\""
@@ -17,6 +18,7 @@
     "@types/lodash.pick": "^4.1.9",
     "@types/node": "22.13.5",
     "@types/prettier": "2.6.0",
+    "@types/to-json-schema": "^0.2.4",
     "aws-cdk": "^2.151.0",
     "aws-cdk-lib": "^2.151.0",
     "concurrently": "^8.2.2",
@@ -34,10 +36,14 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
+    "@aws-sdk/client-lambda": "3.629.0",
     "@aws-sdk/client-s3": "3.629.0",
+    "@aws-sdk/client-sfn": "3.629.0",
+    "@handlebars/parser": "^2.1.0",
     "js-yaml": "^4.1.0",
     "llm-exe": "2.1.2",
     "lodash.kebabcase": "^4.1.1",
-    "lodash.pick": "^4.1.1"
+    "lodash.pick": "^4.1.1",
+    "to-json-schema": "^0.2.5"
   }
 }

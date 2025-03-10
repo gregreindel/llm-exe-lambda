@@ -2,5 +2,5 @@
   "provider": "openai",
   "model": "gpt-4o-mini",
   "output": "string",
-  "message": "Talk like a kitten. Hello world!"
+  "message": "Talk like a pirate. Hello world!"
 }

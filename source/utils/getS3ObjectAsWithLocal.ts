@@ -34,7 +34,7 @@ export async function getS3ObjectAsWithLocal<
 
   if (process.env.NODE_ENV === "development") {
     const data = await fs.readFile(
-      `${process.env.LOCAL_S3_MOCK_DIRECTORY || "~/Downloads"}/${key}`,
+      `${process.env.LOCAL_S3_MOCK_DIRECTORY}/${key}`,
       "utf-8"
     );
     return JSON.parse(data) as T;
